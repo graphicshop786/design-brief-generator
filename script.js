@@ -268,13 +268,50 @@ function generateBrief() {
         const bannerSubcategory = document.getElementById("bannerSubcategorySelect").value;
         const difficulty = document.getElementById("difficulty").value;
 
-        const selectedCategory = category === "random" ? 
-            ["logo", "poster", "banner"][Math.floor(Math.random() * 3)] : category;
-        const subcategory = selectedCategory === "logo" ? logoSubcategory : 
-                           selectedCategory === "poster" ? posterSubcategory : 
-                           selectedCategory === "banner" ? bannerSubcategory : "random";
-        const name = generateUniqueName(selectedCategory, subcategory);
-        const { brief, roadmap } = generateUniqueBrief(name, selectedCategory, subcategory, difficulty);
+        let selectedCategory, selectedSubcategory;
+
+        if (category === "random") {
+            const categories = ["logo", "poster", "banner"];
+            selectedCategory = categories[Math.floor(Math.random() * categories.length)];
+
+            if (selectedCategory === "logo") {
+                const logoSubcategories = ["abstract", "attorney", "animal", "art", "agriculture", "business", "brand", "construction",
+                    "children", "company", "communication", "club", "car", "environment", "education", "food",
+                    "fashion", "finance", "holiday", "industrial", "letter", "life", "music", "medical",
+                    "nature", "nonprofit", "restaurant", "retail", "religion", "sports", "storage", "science",
+                    "transportation", "travel"];
+                selectedSubcategory = logoSubcategories[Math.floor(Math.random() * logoSubcategories.length)];
+            } else if (selectedCategory === "poster") {
+                const posterSubcategories = ["campaign", "formative", "social", "fashion", "movie", "typography", "minimalist", "political", "sale"];
+                selectedSubcategory = posterSubcategories[Math.floor(Math.random() * posterSubcategories.length)];
+            } else if (selectedCategory === "banner") {
+                const bannerSubcategories = ["sale", "event", "ad"];
+                selectedSubcategory = bannerSubcategories[Math.floor(Math.random() * bannerSubcategories.length)];
+            }
+        } else {
+            selectedCategory = category;
+            if (selectedCategory === "logo") {
+                const logoSubcategories = ["abstract", "attorney", "animal", "art", "agriculture", "business", "brand", "construction",
+                    "children", "company", "communication", "club", "car", "environment", "education", "food",
+                    "fashion", "finance", "holiday", "industrial", "letter", "life", "music", "medical",
+                    "nature", "nonprofit", "restaurant", "retail", "religion", "sports", "storage", "science",
+                    "transportation", "travel"];
+                selectedSubcategory = logoSubcategory === "random" ? logoSubcategories[Math.floor(Math.random() * logoSubcategories.length)] : logoSubcategory;
+            } else if (selectedCategory === "poster") {
+                const posterSubcategories = ["campaign", "formative", "social", "fashion", "movie", "typography", "minimalist", "political", "sale"];
+                selectedSubcategory = posterSubcategory === "random" ? posterSubcategories[Math.floor(Math.random() * posterSubcategories.length)] : posterSubcategory;
+            } else if (selectedCategory === "banner") {
+                const bannerSubcategories = ["sale", "event", "ad"];
+                selectedSubcategory = bannerSubcategory === "random" ? bannerSubcategories[Math.floor(Math.random() * bannerSubcategories.length)] : bannerSubcategory;
+            }
+        }
+
+        // Debugging log to verify selections
+        console.log("Selected Category:", selectedCategory);
+        console.log("Selected Subcategory:", selectedSubcategory);
+
+        const name = generateUniqueName(selectedCategory, selectedSubcategory);
+        const { brief, roadmap } = generateUniqueBrief(name, selectedCategory, selectedSubcategory, difficulty);
 
         document.getElementById("briefOutput").innerHTML = brief;
         document.getElementById("roadmap").innerHTML = roadmap;
