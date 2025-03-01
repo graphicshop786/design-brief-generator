@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Generate unique 200-word briefs with 1500-word roadmaps for logos and posters.">
+    <meta name="keywords" content="design briefs, graphic design, logo design, poster design">
+    <title>Design Brief Generator</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <header>
+        <h1>Design Brief Generator</h1>
+        <p>Unique briefs for logos and posters with detailed roadmaps.</p>
+    </header>
+
+    <main>
+        <section class="input-card">
+            <h2>Create Your Brief</h2>
+            <label for="category">Select Category:</label>
+            <select id="category" onchange="toggleSubcategories()">
+                <option value="random">Random Category</option>
+                <option value="logo">Logo</option>
+                <option value="poster">Poster</option>
+                <option value="banner">Banner</option>
+            </select>
+
+            <div id="logoSubcategory" class="hidden">
+                <label for="logoSubcategorySelect">Select Logo Type:</label>
+                <select id="logoSubcategorySelect">
+                    <option value="random">Random Logo Type</option>
+                    <option value="abstract">Abstract</option>
+                    <option value="attorney">Attorney & Law</option>
+                    <option value="animal">Animal & Pet</option>
+                    <option value="art">Art & Entertainment</option>
+                    <option value="agriculture">Agriculture</option>
+                    <option value="business">Business & Consulting</option>
+                    <option value="brand">Brand</option>
+                    <option value="construction">Construction</option>
+                    <option value="children">Children & Childcare</option>
+                    <option value="company">Company</option>
+                    <option value="communication">Communication</option>
+                    <option value="club">Club</option>
+                    <option value="car">Car & Auto</option>
+                    <option value="environment">Environment & Green</option>
+                    <option value="education">Education</option>
+                    <option value="food">Food & Drink</option>
+                    <option value="fashion">Fashion & Beauty</option>
+                    <option value="finance">Finance & Insurance</option>
+                    <option value="holiday">Holiday & Special Occasion</option>
+                    <option value="industrial">Industrial</option>
+                    <option value="letter">Letter</option>
+                    <option value="life">Life</option>
+                    <option value="music">Music</option>
+                    <option value="medical">Medical & Pharmaceutical</option>
+                    <option value="nature">Nature</option>
+                    <option value="nonprofit">Non-Profit</option>
+                    <option value="restaurant">Restaurant</option>
+                    <option value="retail">Retail & Sale</option>
+                    <option value="religion">Religion</option>
+                    <option value="sports">Sports & Fitness</option>
+                    <option value="storage">Storage</option>
+                    <option value="science">Science & Technology</option>
+                    <option value="transportation">Transportation</option>
+                    <option value="travel">Travel & Hotel</option>
+                </select>
+            </div>
+
+            <div id="posterSubcategory" class="hidden">
+                <label for="posterSubcategorySelect">Select Poster Type:</label>
+                <select id="posterSubcategorySelect">
+                    <option value="random">Random Poster Type</option>
+                    <option value="campaign">Campaign Posters</option>
+                    <option value="formative">Formative Posters</option>
+                    <option value="social">Social Posters</option>
+                    <option value="fashion">Fashion Posters</option>
+                    <option value="movie">Movie Posters</option>
+                    <option value="typography">Typography Posters</option>
+                    <option value="minimalist">Minimalist Posters</option>
+                    <option value="political">Political Posters</option>
+                    <option value="sale">Traditional Store Sale Poster</option>
+                </select>
+            </div>
+
+            <label for="difficulty">Select Difficulty:</label>
+            <select id="difficulty">
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+            </select>
+
+            <button onclick="generateBrief()" class="btn">Generate Brief</button>
+        </section>
+
+        <section class="output-card">
+            <h2>Your Design Brief</h2>
+            <div id="briefOutput"></div>
+            <div id="roadmap"></div>
+
+            <div class="mood-board">
+                <h3>Custom Mood Board</h3>
+                <label for="gradientType">Select Gradient Type:</label>
+                <select id="gradientType">
+                    <option value="linear">Linear Gradient</option>
+                    <option value="radial">Radial Gradient</option>
+                    <option value="angular">Angular Gradient</option>
+                    <option value="diamond">Diamond Gradient</option>
+                    <option value="mesh">Mesh Gradient</option>
+                    <option value="shape-blur">Shape Blur Gradient</option>
+                    <option value="freeform">Freeform Gradient</option>
+                    <option value="multiple">Multiple Gradients</option>
+                </select>
+                <div id="gradientPreview"></div>
+                <div id="customColors" class="color-palette"></div>
+                <div class="color-controls">
+                    <input type="color" id="colorPicker">
+                    <button onclick="addColor()" class="btn">Add Color</button>
+                    <button onclick="resetGradient()" class="btn secondary">Reset Gradient</button>
+                </div>
+                <button onclick="updateGradient()" class="btn">Generate Gradient</button>
+                <button onclick="copyGradientCode()" class="btn secondary">Copy Gradient Code</button>
+            </div>
+
+            <div class="action-buttons">
+                <button onclick="copyBrief()" class="btn secondary">Copy Brief</button>
+                <select id="downloadFormat" class="download-format">
+                    <option value="html">HTML</option>
+                    <option value="txt">TXT</option>
+                </select>
+                <button onclick="downloadBrief()" class="btn tertiary">Download Brief</button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        Made with ❤️ by <a href="http://www.facebook.com/graphicshop786" target="_blank">Bilal Hussain</a>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>
