@@ -85,7 +85,7 @@ select:focus, button:focus {
 }
 
 .btn {
-    background: #4b5563; /* Simplified from linear-gradient */
+    background: #4b5563;
     border: none;
     cursor: pointer;
     font-weight: 600;

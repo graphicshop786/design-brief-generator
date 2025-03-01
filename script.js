@@ -64,11 +64,15 @@ function generateUniqueName(category, subcategory) {
         const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
         const year = years[Math.floor(Math.random() * years.length)];
         return `${prefix} ${root} ${suffix} ${year}`;
-    } else {
-        const roots = ["Sale", "Rush", "Fest", "Con", "Expo"];
-        const suffixes = ["Online", "Week", "Night", "Days", "Blitz"];
+    } else if (category === "banner") {
+        const roots = {
+            sale: ["Sale", "Deal", "Offer"],
+            event: ["Event", "Live", "Happening"],
+            ad: ["Ad", "Promo", "Boost"]
+        };
+        const suffixes = ["Online", "Now", "Today", "Rush", "Blitz"];
         const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-        const root = roots[Math.floor(Math.random() * roots.length)];
+        const root = roots[subcategory][Math.floor(Math.random() * roots[subcategory].length)];
         const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
         return `${prefix} ${root} ${suffix}`;
     }
@@ -200,10 +204,45 @@ function generateUniqueBrief(name, category, subcategory, difficulty) {
                 <p><strong>Day 7: Export</strong><br>Export PNG, JPG for '${name}' in ${deadline}.</p>
             `;
         }
-    } else {
-        brief = "Banner category coming soon!";
-        roadmap = "";
+    } else if (category === "banner") {
+        const briefTemplates = {
+            sale: `Design a banner for '${name}', an online sale with a ${vibe} buzz. Craft a bold price tag or product icon that draws ${audience} who shop online.`,
+            event: `Design a banner for '${name}', a digital event with a ${vibe} vibe. Shape a calendar or spotlight that excites ${audience} attending virtually.`,
+            ad: `Design a banner for '${name}', a web ad campaign with a ${vibe} appeal. Create a sleek call-to-action button that grabs ${audience} browsing the web.`
+        };
+
+        const subcat = subcategory === "random" ? Object.keys(briefTemplates)[Math.floor(Math.random() * Object.keys(briefTemplates).length)] : subcategory;
+        const baseBrief = briefTemplates[subcat];
+
+        if (difficulty === "easy") {
+            brief = `${baseBrief} Use 2 colors—like ${colorSet[0]} and ${colorSet[1]}—to keep it clean and bold on a 1200x400px canvas (72dpi for web). Deadline: ${deadline}. This beginner project sharpens your web design skills for '${name}'.`;
+            roadmap = `
+                <h3>Roadmap:</h3>
+                <p><strong>Day 1: Research and Ideation</strong><br>For '${name}', a ${subcat} banner, spend 2-3 hours on Dribbble—study web banners. Note 2 colors (${colorSet[0]}, ${colorSet[1]}) and layouts. Sketch 5 ideas—focus on a key graphic tied to ${subcat}. Pick 2 sketches.</p>
+                <p><strong>Day 2: Digitizing</strong><br>In Photoshop (1200x400px, 72dpi), add your graphic—2 hours. Apply ${colorSet[0]} and ${colorSet[1]}, add text (e.g., Open Sans), refine—2 hours.</p>
+                <p><strong>Day 3: Finalize</strong><br>Polish—test at 50% zoom—3 hours. Export PNG, JPG for '${name}' in ${deadline}.</p>
+            `;
+        } else if (difficulty === "medium") {
+            brief = `${baseBrief} Use 3-4 colors—including ${colorSet[0]} and ${colorSet[1]}—to blend a striking visual with clear text (e.g., Lato). Add a subtle overlay for depth on a 1200x400px canvas (72dpi). Deadline: ${deadline}. This medium project refines your banner skills for '${name}'.`;
+            roadmap = `
+                <h3>Roadmap:</h3>
+                <p><strong>Day 1: Research</strong><br>For '${name}', a ${subcat} banner, research 15 banners on Behance—note 3-4 colors (${colorSet[0]}, ${colorSet[1]}). Define 5-7 keywords.</p>
+                <p><strong>Day 2: Sketching</strong><br>Sketch 7-10 ideas with visuals and text—2 hours.</p>
+                <p><strong>Day 3-4: Design</strong><br>Day 3: In Photoshop (1200x400px, 72dpi), add visual and overlay—4 hours. Day 4: Use Lato, mock up—4 hours.</p>
+                <p><strong>Day 5: Finalize</strong><br>Polish, export PNG, JPG for '${name}' in ${deadline}.</p>
+            `;
+        } else {
+            brief = `${baseBrief} Use 4-5 colors—including ${colorSet[0]} and ${colorSet[1]}—to create a layered banner with dynamic text (e.g., Bebas Neue). Add gradients for a bold 1200x400px web design (72dpi). Deadline: ${deadline}. This hard project pushes your creativity for '${name}'.`;
+            roadmap = `
+                <h3>Roadmap:</h3>
+                <p><strong>Day 1-2: Research</strong><br>For '${name}', a ${subcat} banner, study 20 banners on Dribbble—note gradients, 4-5 colors (${colorSet[0]}, ${colorSet[1]}). Sketch 15 ideas.</p>
+                <p><strong>Day 3-4: Digitize</strong><br>Day 3: Photoshop (1200x400px, 72dpi), layer visuals with gradients—5 hours. Day 4: Apply Bebas Neue, refine—5 hours.</p>
+                <p><strong>Day 5-6: Refine</strong><br>Day 5: Perfect layers—4 hours. Day 6: Mock up, adjust—4 hours.</p>
+                <p><strong>Day 7: Export</strong><br>Export PNG, JPG for '${name}' in ${deadline}.</p>
+            `;
+        }
     }
+
     return { brief, roadmap };
 }
 
@@ -211,8 +250,10 @@ function toggleSubcategories() {
     const category = document.getElementById("category").value;
     const logoSubcategory = document.getElementById("logoSubcategory");
     const posterSubcategory = document.getElementById("posterSubcategory");
+    const bannerSubcategory = document.getElementById("bannerSubcategory");
     logoSubcategory.classList.toggle("hidden", category !== "logo");
     posterSubcategory.classList.toggle("hidden", category !== "poster");
+    bannerSubcategory.classList.toggle("hidden", category !== "banner");
 }
 
 function generateBrief() {
@@ -224,18 +265,14 @@ function generateBrief() {
         const category = document.getElementById("category").value;
         const logoSubcategory = document.getElementById("logoSubcategorySelect").value;
         const posterSubcategory = document.getElementById("posterSubcategorySelect").value;
+        const bannerSubcategory = document.getElementById("bannerSubcategorySelect").value;
         const difficulty = document.getElementById("difficulty").value;
-
-        if (!category || (!logoSubcategory && !posterSubcategory)) {
-            alert("Please select a category and subcategory before generating a brief.");
-            generateButton.disabled = false;
-            generateButton.textContent = "Generate Brief";
-            return;
-        }
 
         const selectedCategory = category === "random" ? 
             ["logo", "poster", "banner"][Math.floor(Math.random() * 3)] : category;
-        const subcategory = selectedCategory === "logo" ? logoSubcategory : selectedCategory === "poster" ? posterSubcategory : "random";
+        const subcategory = selectedCategory === "logo" ? logoSubcategory : 
+                           selectedCategory === "poster" ? posterSubcategory : 
+                           selectedCategory === "banner" ? bannerSubcategory : "random";
         const name = generateUniqueName(selectedCategory, subcategory);
         const { brief, roadmap } = generateUniqueBrief(name, selectedCategory, subcategory, difficulty);
 
@@ -312,7 +349,7 @@ function copyGradientCode() {
             case "shape-blur": gradientCode = `background: linear-gradient(to right, ${customColors.join(", ")})`; break;
             case "freeform": gradientCode = `background: linear-gradient(to right, ${customColors.join(", ")})`; break;
             case "multiple": gradientCode = `background: linear-gradient(to right, ${customColors.join(", ")}), radial-gradient(circle, ${customColors.join(", ")})`; break;
-            default: gradientCode = `background: linear-gradient(to right, ${customColors.join(", ")})`;
+            default: gradientCode = `background: linear-gradient(to right, ${customColors.join(", ")}`;
         }
 
         navigator.clipboard.writeText(gradientCode).then(() => {
