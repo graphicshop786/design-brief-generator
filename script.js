@@ -1,475 +1,1479 @@
-let customColors = [];
+// BriefAI Pro - Advanced Design Brief Generator
+// Enhanced with AI-powered insights, premium features, and modern UX
 
-function generateUniqueName(category, subcategory) {
-    const prefixes = ["Neo", "Eco", "Vibe", "Pulse", "Glow", "Peak", "Luna", "Zest", "Nova", "Urban", "Solar", "Aqua", "Blaze", "Core", "Flux"];
-    const years = ["2025", "2026", "2027", "2028"];
+// Global state management
+const AppState = {
+    currentBrief: null,
+    savedBriefs: JSON.parse(localStorage.getItem('savedBriefs') || '[]'),
+    templates: JSON.parse(localStorage.getItem('templates') || '[]'),
+    darkMode: localStorage.getItem('darkMode') === 'true',
+    user: JSON.parse(localStorage.getItem('user') || 'null')
+};
 
-    if (category === "logo") {
-        const roots = {
-            abstract: ["Abstract", "Form", "Shape"],
-            attorney: ["Legal", "Justice", "Law"],
-            animal: ["Pet", "Wild", "Paw"],
-            art: ["Art", "Creative", "Muse"],
-            agriculture: ["Farm", "Grow", "Harvest"],
-            business: ["Consult", "Biz", "Pro"],
-            brand: ["Brand", "Mark", "Identity"],
-            construction: ["Build", "Construct", "Site"],
-            children: ["Kid", "Play", "Joy"],
-            company: ["Corp", "Co", "Firm"],
-            communication: ["Talk", "Connect", "Voice"],
-            club: ["Club", "Crew", "Gang"],
-            car: ["Auto", "Drive", "Motor"],
-            environment: ["Green", "Eco", "Earth"],
-            education: ["Learn", "Edu", "Mind"],
-            food: ["Food", "Taste", "Bite"],
-            fashion: ["Style", "Trend", "Chic"],
-            finance: ["Wealth", "Cash", "Fund"],
-            holiday: ["Fest", "Joy", "Celebrate"],
-            industrial: ["Indust", "Forge", "Works"],
-            letter: ["Letter", "Type", "Word"],
-            life: ["Life", "Soul", "Vital"],
-            music: ["Tune", "Beat", "Melody"],
-            medical: ["Med", "Health", "Care"],
-            nature: ["Nature", "Leaf", "Bloom"],
-            nonprofit: ["Hope", "Cause", "Aid"],
-            restaurant: ["Dine", "Eatery", "Bistro"],
-            retail: ["Shop", "Store", "Mart"],
-            religion: ["Faith", "Spirit", "Grace"],
-            sports: ["Sport", "Fit", "Active"],
-            storage: ["Store", "Vault", "Space"],
-            science: ["Sci", "Tech", "Lab"],
-            transportation: ["Trans", "Move", "Ride"],
-            travel: ["Travel", "Trip", "Wander"]
+// Enhanced data structures for advanced features
+const CATEGORIES = {
+    logo: {
+        name: 'Logo Design',
+        icon: '🎨',
+        subcategories: {
+            abstract: 'Abstract',
+            wordmark: 'Wordmark',
+            symbol: 'Symbol/Icon',
+            combination: 'Combination Mark',
+            emblem: 'Emblem',
+            mascot: 'Mascot',
+            monogram: 'Monogram'
+        }
+    },
+    brand: {
+        name: 'Brand Identity',
+        icon: '🏢',
+        subcategories: {
+            complete: 'Complete Identity',
+            guidelines: 'Brand Guidelines',
+            refresh: 'Brand Refresh',
+            extensions: 'Brand Extensions',
+            voice: 'Brand Voice & Messaging',
+            positioning: 'Brand Positioning'
+        }
+    },
+    website: {
+        name: 'Website Design',
+        icon: '💻',
+        subcategories: {
+            landing: 'Landing Page',
+            corporate: 'Corporate Website',
+            ecommerce: 'E-commerce',
+            portfolio: 'Portfolio',
+            blog: 'Blog/Magazine',
+            saas: 'SaaS Platform',
+            mobile: 'Mobile-First'
+        }
+    },
+    app: {
+        name: 'App Design',
+        icon: '📱',
+        subcategories: {
+            mobile: 'Mobile App',
+            web: 'Web App',
+            desktop: 'Desktop App',
+            dashboard: 'Dashboard/Admin',
+            game: 'Game Interface',
+            ar: 'AR/VR Interface'
+        }
+    },
+    packaging: {
+        name: 'Packaging Design',
+        icon: '📦',
+        subcategories: {
+            product: 'Product Packaging',
+            food: 'Food & Beverage',
+            cosmetics: 'Beauty & Cosmetics',
+            electronics: 'Electronics',
+            luxury: 'Luxury Goods',
+            eco: 'Eco-Friendly'
+        }
+    },
+    poster: {
+        name: 'Poster Design',
+        icon: '🖼️',
+        subcategories: {
+            event: 'Event Poster',
+            movie: 'Movie Poster',
+            concert: 'Concert/Music',
+            political: 'Political Campaign',
+            educational: 'Educational',
+            artistic: 'Artistic/Creative'
+        }
+    },
+    banner: {
+        name: 'Banner Design',
+        icon: '🎯',
+        subcategories: {
+            web: 'Web Banner',
+            social: 'Social Media',
+            display: 'Display Advertising',
+            outdoor: 'Outdoor/Billboard',
+            email: 'Email Header',
+            trade: 'Trade Show'
+        }
+    },
+    illustration: {
+        name: 'Illustration',
+        icon: '✨',
+        subcategories: {
+            editorial: 'Editorial',
+            children: 'Children\'s Book',
+            technical: 'Technical/Infographic',
+            character: 'Character Design',
+            concept: 'Concept Art',
+            pattern: 'Pattern Design'
+        }
+    },
+    marketing: {
+        name: 'Marketing Materials',
+        icon: '📢',
+        subcategories: {
+            brochure: 'Brochure',
+            flyer: 'Flyer',
+            catalog: 'Catalog',
+            presentation: 'Presentation',
+            infographic: 'Infographic',
+            social: 'Social Media Kit'
+        }
+    },
+    billboard: {
+        name: 'Billboard Design',
+        icon: '🏗️',
+        subcategories: {
+            highway: 'Highway Billboard',
+            transit: 'Transit Advertising',
+            digital: 'Digital Billboard',
+            building: 'Building Wrap',
+            airport: 'Airport Display'
+        }
+    }
+};
+
+const INDUSTRIES = {
+    technology: { name: 'Technology', trends: ['AI/ML', 'Blockchain', 'IoT', 'Cloud'], colors: ['#0066FF', '#00D4FF'] },
+    healthcare: { name: 'Healthcare', trends: ['Telemedicine', 'Wellness', 'Mental Health'], colors: ['#00C851', '#007E33'] },
+    finance: { name: 'Finance', trends: ['Fintech', 'Cryptocurrency', 'Digital Banking'], colors: ['#1565C0', '#0D47A1'] },
+    education: { name: 'Education', trends: ['EdTech', 'Online Learning', 'Micro-credentials'], colors: ['#FF6F00', '#E65100'] },
+    retail: { name: 'Retail', trends: ['E-commerce', 'Omnichannel', 'Sustainability'], colors: ['#E91E63', '#AD1457'] },
+    food: { name: 'Food & Beverage', trends: ['Plant-based', 'Artisanal', 'Health-conscious'], colors: ['#4CAF50', '#2E7D32'] },
+    fashion: { name: 'Fashion', trends: ['Sustainable Fashion', 'Streetwear', 'Gender-neutral'], colors: ['#9C27B0', '#6A1B9A'] },
+    travel: { name: 'Travel', trends: ['Eco-tourism', 'Digital Nomads', 'Experience Economy'], colors: ['#00BCD4', '#00838F'] },
+    sports: { name: 'Sports & Fitness', trends: ['Wellness Tech', 'Home Fitness', 'Mental Performance'], colors: ['#FF5722', '#D84315'] },
+    entertainment: { name: 'Entertainment', trends: ['Streaming', 'Gaming', 'Virtual Events'], colors: ['#673AB7', '#4527A0'] }
+};
+
+const TONES = {
+    professional: { description: 'Clean, trustworthy, corporate', keywords: ['reliable', 'established', 'competent'] },
+    playful: { description: 'Fun, energetic, approachable', keywords: ['creative', 'youthful', 'engaging'] },
+    minimalist: { description: 'Simple, clean, focused', keywords: ['elegant', 'sophisticated', 'timeless'] },
+    bold: { description: 'Strong, confident, impactful', keywords: ['dynamic', 'powerful', 'memorable'] },
+    elegant: { description: 'Refined, luxurious, premium', keywords: ['sophisticated', 'premium', 'exclusive'] },
+    modern: { description: 'Contemporary, innovative, tech-forward', keywords: ['cutting-edge', 'progressive', 'innovative'] },
+    vintage: { description: 'Classic, nostalgic, timeless', keywords: ['heritage', 'authentic', 'traditional'] },
+    creative: { description: 'Artistic, unique, imaginative', keywords: ['original', 'expressive', 'innovative'] }
+};
+
+// Enhanced name generation with AI-like intelligence
+class NameGenerator {
+    constructor() {
+        this.prefixes = {
+            tech: ["Neo", "Cyber", "Digital", "Smart", "Quantum", "Meta", "Pixel", "Code", "Data", "Cloud"],
+            creative: ["Arte", "Vibe", "Flow", "Spark", "Muse", "Vision", "Dream", "Soul", "Pure", "Wild"],
+            business: ["Pro", "Elite", "Prime", "Peak", "Core", "Apex", "Summit", "Crown", "Royal", "Global"],
+            modern: ["Edge", "Flux", "Sync", "Zen", "Bolt", "Swift", "Pulse", "Wave", "Shift", "Leap"]
         };
-        const suffixes = ["Co.", "Labs", "Group", "Hub", "Ventures", "Works", "Inc", "Collective", "Network", "Studio"];
-        const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-        const root = roots[subcategory][Math.floor(Math.random() * roots[subcategory].length)];
-        const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
-        return `${prefix}${root}${suffix}`;
-    } else if (category === "poster") {
-        const roots = {
-            campaign: ["Campaign", "Cause", "Voice"],
-            formative: ["Learn", "Edu", "Grow"],
-            social: ["Connect", "Share", "Link"],
-            fashion: ["Trend", "Style", "Vibe"],
-            movie: ["Film", "Cinema", "Reel"],
-            typography: ["Type", "Font", "Word"],
-            minimalist: ["Minimal", "Pure", "Clean"],
-            political: ["Vote", "Power", "Lead"],
-            sale: ["Sale", "Shop", "Deal"]
+        
+        this.suffixes = {
+            company: ["Co", "Labs", "Group", "Hub", "Works", "Studio", "Collective", "Partners", "Solutions", "Industries"],
+            creative: ["Design", "Creative", "Arts", "Media", "Vision", "Studio", "House", "Workshop", "Gallery", "Space"],
+            tech: ["Tech", "Systems", "Digital", "Soft", "Web", "Data", "Cloud", "AI", "Code", "Net"]
         };
-        const suffixes = ["Fest", "Expo", "Summit", "Run", "Night", "Jam", "Fair", "Rally", "Bash"];
-        const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-        const root = roots[subcategory][Math.floor(Math.random() * roots[subcategory].length)];
-        const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
-        const year = years[Math.floor(Math.random() * years.length)];
-        return `${prefix} ${root} ${suffix} ${year}`;
-    } else if (category === "banner") {
+    }
+
+    generate(category, industry, tone) {
+        const prefixType = this.getPrefixType(industry, tone);
+        const suffixType = this.getSuffixType(category, industry);
+        
+        const prefix = this.getRandomFromArray(this.prefixes[prefixType]);
+        const suffix = this.getRandomFromArray(this.suffixes[suffixType]);
+        const root = this.generateRoot(category, industry);
+        
+        return `${prefix}${root} ${suffix}`;
+    }
+
+    getPrefixType(industry, tone) {
+        if (['technology', 'finance'].includes(industry)) return 'tech';
+        if (['minimalist', 'modern'].includes(tone)) return 'modern';
+        if (['creative', 'playful'].includes(tone)) return 'creative';
+        return 'business';
+    }
+
+    getSuffixType(category, industry) {
+        if (['logo', 'brand', 'illustration'].includes(category)) return 'creative';
+        if (['website', 'app'].includes(category)) return 'tech';
+        return 'company';
+    }
+
+    generateRoot(category, industry) {
         const roots = {
-            sale: ["Sale", "Deal", "Offer"],
-            event: ["Event", "Live", "Happening"],
-            ad: ["Ad", "Promo", "Boost"]
+            logo: ["Mark", "Sign", "Symbol", "Icon", "Brand"],
+            brand: ["Identity", "Brand", "Image", "Concept", "Vision"],
+            website: ["Web", "Site", "Digital", "Online", "Portal"],
+            app: ["App", "Mobile", "Touch", "Smart", "Interface"]
         };
-        const suffixes = ["Online", "Now", "Today", "Rush", "Blitz"];
-        const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-        const root = roots[subcategory][Math.floor(Math.random() * roots[subcategory].length)];
-        const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
-        return `${prefix} ${root} ${suffix}`;
+        
+        const categoryRoots = roots[category] || ["Creative", "Design", "Studio", "Works", "Group"];
+        return this.getRandomFromArray(categoryRoots);
+    }
+
+    getRandomFromArray(array) {
+        return array[Math.floor(Math.random() * array.length)];
     }
 }
 
-function generateUniqueBrief(name, category, subcategory, difficulty) {
-    const deadlines = { easy: "3 days", medium: "5 days", hard: "1 week" };
-    const deadline = deadlines[difficulty];
-    const vibes = ["futuristic", "professional", "playful", "creative", "rustic", "modern", "elegant", "bold", "calm", "vibrant"];
-    const audiences = ["18-35 youth", "25-45 professionals", "15-50 general public", "20-40 creatives", "30-60 families"];
-    const colors = [
-        ["#4682B4", "#D3D3D3"], ["#8B4513", "#F5F5DC"], ["#FF4500", "#FFD700"],
-        ["#808080", "#1E90FF"], ["#228B22", "#000000"], ["#800080", "#FF69B4"]
-    ];
-
-    let brief, roadmap;
-    const vibe = vibes[Math.floor(Math.random() * vibes.length)];
-    const audience = audiences[Math.floor(Math.random() * audiences.length)];
-    const colorSet = colors[Math.floor(Math.random() * colors.length)];
-
-    if (category === "logo") {
-        const briefTemplates = {
-            abstract: `Design a logo for '${name}', an abstract art platform launching with a ${vibe} identity. Craft a fluid, non-representational shape that sparks imagination for ${audience}.`,
-            attorney: `Design a logo for '${name}', a law firm needing a ${vibe} mark. Form a scales-of-justice icon that radiates trust for ${audience} who value professionalism.`,
-            animal: `Design a logo for '${name}', a pet care brand with a ${vibe} vibe. Depict a paw or animal silhouette that warms the hearts of ${audience} who adore pets.`,
-            art: `Design a logo for '${name}', an entertainment hub with a ${vibe} flair. Create a brushstroke or stage icon that excites ${audience} who live for culture.`,
-            agriculture: `Design a logo for '${name}', a farming co-op with a ${vibe} feel. Shape a wheat stalk or tractor that connects with ${audience} in rural life.`,
-            business: `Design a logo for '${name}', a consulting firm with a ${vibe} edge. Form a handshake or graph that appeals to ${audience} in the business world.`,
-            brand: `Design a logo for '${name}', a branding agency with a ${vibe} style. Craft a bold ‘B’ or swirl that inspires ${audience} seeking bold identities.`,
-            construction: `Design a logo for '${name}', a construction firm with a ${vibe} look. Depict a hammer or building that resonates with ${audience} in trades.`,
-            children: `Design a logo for '${name}', a childcare service with a ${vibe} charm. Shape a toy or smile that delights ${audience} with young kids.`,
-            company: `Design a logo for '${name}', a corporate entity with a ${vibe} tone. Form a ‘C’ or skyline that suits ${audience} in corporate settings.`,
-            communication: `Design a logo for '${name}', a comms agency with a ${vibe} vibe. Create a speech bubble that engages ${audience} who connect daily.`,
-            club: `Design a logo for '${name}', a social club with a ${vibe} spirit. Shape a crest or circle that unites ${audience} in community groups.`,
-            car: `Design a logo for '${name}', an auto shop with a ${vibe} drive. Depict a wheel or car that revs up ${audience} with vehicles.`,
-            environment: `Design a logo for '${name}', a green initiative with a ${vibe} ethos. Form a leaf or globe that motivates ${audience} who care about the planet.`,
-            education: `Design a logo for '${name}', a learning center with a ${vibe} mind. Craft a book or cap that educates ${audience} in schools.`,
-            food: `Design a logo for '${name}', a food brand with a ${vibe} taste. Shape a fork or fruit that tempts ${audience} who love to eat.`,
-            fashion: `Design a logo for '${name}', a beauty line with a ${vibe} style. Form a hanger or face that enchants ${audience} in fashion trends.`,
-            finance: `Design a logo for '${name}', a finance firm with a ${vibe} trust. Depict a coin or chart that reassures ${audience} with money matters.`,
-            holiday: `Design a logo for '${name}', a festive event with a ${vibe} joy. Craft a star or gift that excites ${audience} celebrating occasions.`,
-            industrial: `Design a logo for '${name}', an industrial co. with a ${vibe} strength. Shape a gear or factory that stands firm for ${audience} in manufacturing.`,
-            letter: `Design a logo for '${name}', a typography project with a ${vibe} twist. Form a unique letter that captivates ${audience} who love words.`,
-            life: `Design a logo for '${name}', a lifestyle brand with a ${vibe} essence. Depict a heart or sun that uplifts ${audience} living vibrantly.`,
-            music: `Design a logo for '${name}', a music venture with a ${vibe} rhythm. Craft a note or wave that resonates with ${audience} who listen.`,
-            medical: `Design a logo for '${name}', a health service with a ${vibe} care. Shape a cross or pill that comforts ${audience} in need of health.`,
-            nature: `Design a logo for '${name}', a nature co. with a ${vibe} bloom. Form a tree or flower that soothes ${audience} who love the outdoors.`,
-            nonprofit: `Design a logo for '${name}', a charity with a ${vibe} hope. Depict a hand or dove that inspires ${audience} who give back.`,
-            restaurant: `Design a logo for '${name}', a dining spot with a ${vibe} flavor. Craft a plate or chef hat that entices ${audience} who dine out.`,
-            retail: `Design a logo for '${name}', a store with a ${vibe} shop. Shape a bag or cart that attracts ${audience} who love shopping.`,
-            religion: `Design a logo for '${name}', a faith group with a ${vibe} peace. Form a cross or candle that calms ${audience} who pray.`,
-            sports: `Design a logo for '${name}', a fitness brand with a ${vibe} energy. Depict a ball or runner that energizes ${audience} who stay active.`,
-            storage: `Design a logo for '${name}', a storage co. with a ${vibe} space. Craft a box or lock that organizes ${audience} with belongings.`,
-            science: `Design a logo for '${name}', a tech lab with a ${vibe} future. Shape an atom or flask that intrigues ${audience} in science.`,
-            transportation: `Design a logo for '${name}', a transit firm with a ${vibe} motion. Depict a truck or plane that moves ${audience} on the go.`,
-            travel: `Design a logo for '${name}', a travel agency with a ${vibe} wander. Craft a globe or suitcase that excites ${audience} who explore.`
-        };
-
-        const subcat = subcategory === "random" ? Object.keys(briefTemplates)[Math.floor(Math.random() * Object.keys(briefTemplates).length)] : subcategory;
-        const baseBrief = briefTemplates[subcat];
-
-        if (difficulty === "easy") {
-            brief = `${baseBrief} Use 2 colors—like ${colorSet[0]} and ${colorSet[1]}—to keep it simple and versatile across digital and print (500x500px, 300dpi). Deadline: ${deadline}. This beginner project hones your skills, creating a clean logo for '${name}'—perfect for a quick portfolio piece.`;
-            roadmap = `
-                <h3>Roadmap:</h3>
-                <p><strong>Day 1: Research and Ideation</strong><br>Begin with '${name}', a ${subcat} entity. Spend 2-3 hours researching similar logos on Dribbble—e.g., abstract shapes, legal icons, pet paws. Note 2-color palettes (${colorSet[0]}, ${colorSet[1]}) and simple designs. Define 5 keywords (e.g., ${vibe}, clear). Sketch 10 ideas—focus on a single icon tied to ${subcat}. Pick 2-3 sketches.</p>
-                <p><strong>Day 2: Digitizing</strong><br>In Illustrator (500x500px, 300dpi), digitize your top sketch with the Pen Tool—keep it minimal, 2 hours. Apply ${colorSet[0]} and ${colorSet[1]}, test in grayscale. Add a font (e.g., Montserrat), refine over 2 hours.</p>
-                <p><strong>Day 3: Finalize</strong><br>Polish—smooth edges, test at 50x50px—3 hours. Export PNG, JPG, EPS. Deliver a clean logo for '${name}' in ${deadline}.</p>
-            `;
-        } else if (difficulty === "medium") {
-            brief = `${baseBrief} Use 3-4 colors—including ${colorSet[0]} and ${colorSet[1]}—to blend a unique icon with balanced typography (e.g., Roboto). Add a subtle secondary element (e.g., line, curve) for depth, targeting an 800x800px, 300dpi canvas. Deadline: ${deadline}. This medium project refines your skills, crafting a versatile logo for '${name}'.`;
-            roadmap = `
-                <h3>Roadmap:</h3>
-                <p><strong>Day 1: Research</strong><br>For '${name}', a ${subcat} brand, research 15 logos on Behance—note 3-4 color schemes (${colorSet[0]}, ${colorSet[1]}). Define 5-7 keywords.</p>
-                <p><strong>Day 2: Sketching</strong><br>Sketch 7-10 ideas with icons and flourishes—2 hours.</p>
-                <p><strong>Day 3-4: Design</strong><br>Day 3: Digitize in Illustrator (800x800px)—add a flourish, 4 hours. Day 4: Test Roboto font, mock up on packaging—4 hours.</p>
-                <p><strong>Day 5: Finalize</strong><br>Polish, export PNG, JPG, SVG for '${name}' in ${deadline}.</p>
-            `;
-        } else {
-            brief = `${baseBrief} Use 4-5 colors—including ${colorSet[0]} and ${colorSet[1]}—to create a gradient-heavy icon and dynamic typography (e.g., Futura bold, light mix). Target a 1000x1000px, 300dpi canvas for '${name}'’s standout branding across platforms. Deadline: ${deadline}. This hard project pushes your creativity for a bold identity.`;
-            roadmap = `
-                <h3>Roadmap:</h3>
-                <p><strong>Day 1-2: Research</strong><br>For '${name}', a ${subcat} venture, study 20 logos on Dribbble—note gradients, 4-5 colors (${colorSet[0]}, ${colorSet[1]}). Sketch 15 ideas.</p>
-                <p><strong>Day 3-4: Digitize</strong><br>Day 3: Illustrator (1000x1000px), craft icon with gradients—5 hours. Day 4: Apply Futura, test gradients—5 hours.</p>
-                <p><strong>Day 5-6: Refine</strong><br>Day 5: Perfect icon—4 hours. Day 6: Mock up, adjust—4 hours.</p>
-                <p><strong>Day 7: Export</strong><br>Export PNG, SVG, EPS for '${name}' in ${deadline}.</p>
-            `;
-        }
-    } else if (category === "poster") {
-        const briefTemplates = {
-            campaign: `Design a campaign poster for '${name}', an advocacy event aiming to ignite action with a ${vibe} tone. Craft a bold slogan and symbol (e.g., fist, megaphone) for ${audience} who rally.`,
-            formative: `Design a formative poster for '${name}', an educational event with a ${vibe} vibe. Depict a brain or book that informs ${audience} who seek knowledge.`,
-            social: `Design a social poster for '${name}', a community connect with a ${vibe} feel. Shape a handshake or heart that binds ${audience} who share ideas.`,
-            fashion: `Design a fashion poster for '${name}', a style showcase with a ${vibe} flair. Feature a model silhouette that dazzles ${audience} in trends.`,
-            movie: `Design a movie poster for '${name}', a film premiere with a ${vibe} mood. Craft a reel or star that entices ${audience} who love cinema.`,
-            typography: `Design a typography poster for '${name}', a text art event with a ${vibe} style. Form bold letters that captivate ${audience} who adore fonts.`,
-            minimalist: `Design a minimalist poster for '${name}', a sleek exhibit with a ${vibe} charm. Create a simple line or dot that speaks to ${audience} who value less.`,
-            political: `Design a political poster for '${name}', a voting drive with a ${vibe} edge. Depict a ballot or flag that motivates ${audience} who vote.`,
-            sale: `Design a sale poster for '${name}', a store discount with a ${vibe} buzz. Shape a price tag or cart that draws ${audience} who shop.`
-        };
-
-        const subcat = subcategory === "random" ? Object.keys(briefTemplates)[Math.floor(Math.random() * Object.keys(briefTemplates).length)] : subcategory;
-        const baseBrief = briefTemplates[subcat];
-
-        if (difficulty === "easy") {
-            brief = `${baseBrief} Use 2 colors—like ${colorSet[0]} and ${colorSet[1]}—to keep it striking and simple on an A3 canvas (11.7x16.5in, 300dpi). Deadline: ${deadline}. This beginner project hones your layout skills for '${name}'.`;
-            roadmap = `
-                <h3>Roadmap:</h3>
-                <p><strong>Day 1: Research and Ideation</strong><br>For '${name}', a ${subcat} event, spend 2-3 hours on Pinterest—study posters like campaigns, movies, or sales. Note 2 colors (${colorSet[0]}, ${colorSet[1]}) and layouts. Sketch 5 ideas—focus on a key element tied to ${subcat}. Pick 2 sketches.</p>
-                <p><strong>Day 2: Digitizing</strong><br>In Photoshop (A3, 300dpi), add your element (e.g., fist, book)—2 hours. Apply ${colorSet[0]} and ${colorSet[1]}, add text (e.g., Arial), refine—2 hours.</p>
-                <p><strong>Day 3: Finalize</strong><br>Polish—test legibility at 25% zoom—3 hours. Export PNG, JPG for '${name}' in ${deadline}.</p>
-            `;
-        } else if (difficulty === "medium") {
-            brief = `${baseBrief} Use 3-4 colors—including ${colorSet[0]} and ${colorSet[1]}—to blend a central visual with clear text (e.g., Helvetica). Add a subtle texture for depth on an A3 canvas (300dpi). Deadline: ${deadline}. This medium project refines your poster skills for '${name}'.`;
-            roadmap = `
-                <h3>Roadmap:</h3>
-                <p><strong>Day 1: Research</strong><br>For '${name}', a ${subcat} event, research 15 posters on Behance—note 3-4 colors (${colorSet[0]}, ${colorSet[1]}). Define 5-7 keywords.</p>
-                <p><strong>Day 2: Sketching</strong><br>Sketch 7-10 ideas with visuals and text—2 hours.</p>
-                <p><strong>Day 3-4: Design</strong><br>Day 3: In Photoshop (A3, 300dpi), add visual and texture—4 hours. Day 4: Use Helvetica, mock up—4 hours.</p>
-                <p><strong>Day 5: Finalize</strong><br>Polish, export PNG, JPG for '${name}' in ${deadline}.</p>
-            `;
-        } else {
-            brief = `${baseBrief} Use 4-5 colors—including ${colorSet[0]} and ${colorSet[1]}—to create a layered design with bold typography (e.g., Impact). Add gradients for a standout A3 poster (300dpi). Deadline: ${deadline}. This hard project pushes your creativity for '${name}'.`;
-            roadmap = `
-                <h3>Roadmap:</h3>
-                <p><strong>Day 1-2: Research</strong><br>For '${name}', a ${subcat} event, study 20 posters on Dribbble—note gradients, 4-5 colors (${colorSet[0]}, ${colorSet[1]}). Sketch 15 ideas.</p>
-                <p><strong>Day 3-4: Digitize</strong><br>Day 3: Photoshop (A3, 300dpi), layer visuals with gradients—5 hours. Day 4: Apply Impact, refine—5 hours.</p>
-                <p><strong>Day 5-6: Refine</strong><br>Day 5: Perfect layers—4 hours. Day 6: Mock up, adjust—4 hours.</p>
-                <p><strong>Day 7: Export</strong><br>Export PNG, JPG for '${name}' in ${deadline}.</p>
-            `;
-        }
-    } else if (category === "banner") {
-        const briefTemplates = {
-            sale: `Design a banner for '${name}', an online sale with a ${vibe} buzz. Craft a bold price tag or product icon that draws ${audience} who shop online.`,
-            event: `Design a banner for '${name}', a digital event with a ${vibe} vibe. Shape a calendar or spotlight that excites ${audience} attending virtually.`,
-            ad: `Design a banner for '${name}', a web ad campaign with a ${vibe} appeal. Create a sleek call-to-action button that grabs ${audience} browsing the web.`
-        };
-
-        const subcat = subcategory === "random" ? Object.keys(briefTemplates)[Math.floor(Math.random() * Object.keys(briefTemplates).length)] : subcategory;
-        const baseBrief = briefTemplates[subcat];
-
-        if (difficulty === "easy") {
-            brief = `${baseBrief} Use 2 colors—like ${colorSet[0]} and ${colorSet[1]}—to keep it clean and bold on a 1200x400px canvas (72dpi for web). Deadline: ${deadline}. This beginner project sharpens your web design skills for '${name}'.`;
-            roadmap = `
-                <h3>Roadmap:</h3>
-                <p><strong>Day 1: Research and Ideation</strong><br>For '${name}', a ${subcat} banner, spend 2-3 hours on Dribbble—study web banners. Note 2 colors (${colorSet[0]}, ${colorSet[1]}) and layouts. Sketch 5 ideas—focus on a key graphic tied to ${subcat}. Pick 2 sketches.</p>
-                <p><strong>Day 2: Digitizing</strong><br>In Photoshop (1200x400px, 72dpi), add your graphic—2 hours. Apply ${colorSet[0]} and ${colorSet[1]}, add text (e.g., Open Sans), refine—2 hours.</p>
-                <p><strong>Day 3: Finalize</strong><br>Polish—test at 50% zoom—3 hours. Export PNG, JPG for '${name}' in ${deadline}.</p>
-            `;
-        } else if (difficulty === "medium") {
-            brief = `${baseBrief} Use 3-4 colors—including ${colorSet[0]} and ${colorSet[1]}—to blend a striking visual with clear text (e.g., Lato). Add a subtle overlay for depth on a 1200x400px canvas (72dpi). Deadline: ${deadline}. This medium project refines your banner skills for '${name}'.`;
-            roadmap = `
-                <h3>Roadmap:</h3>
-                <p><strong>Day 1: Research</strong><br>For '${name}', a ${subcat} banner, research 15 banners on Behance—note 3-4 colors (${colorSet[0]}, ${colorSet[1]}). Define 5-7 keywords.</p>
-                <p><strong>Day 2: Sketching</strong><br>Sketch 7-10 ideas with visuals and text—2 hours.</p>
-                <p><strong>Day 3-4: Design</strong><br>Day 3: In Photoshop (1200x400px, 72dpi), add visual and overlay—4 hours. Day 4: Use Lato, mock up—4 hours.</p>
-                <p><strong>Day 5: Finalize</strong><br>Polish, export PNG, JPG for '${name}' in ${deadline}.</p>
-            `;
-        } else {
-            brief = `${baseBrief} Use 4-5 colors—including ${colorSet[0]} and ${colorSet[1]}—to create a layered banner with dynamic text (e.g., Bebas Neue). Add gradients for a bold 1200x400px web design (72dpi). Deadline: ${deadline}. This hard project pushes your creativity for '${name}'.`;
-            roadmap = `
-                <h3>Roadmap:</h3>
-                <p><strong>Day 1-2: Research</strong><br>For '${name}', a ${subcat} banner, study 20 banners on Dribbble—note gradients, 4-5 colors (${colorSet[0]}, ${colorSet[1]}). Sketch 15 ideas.</p>
-                <p><strong>Day 3-4: Digitize</strong><br>Day 3: Photoshop (1200x400px, 72dpi), layer visuals with gradients—5 hours. Day 4: Apply Bebas Neue, refine—5 hours.</p>
-                <p><strong>Day 5-6: Refine</strong><br>Day 5: Perfect layers—4 hours. Day 6: Mock up, adjust—4 hours.</p>
-                <p><strong>Day 7: Export</strong><br>Export PNG, JPG for '${name}' in ${deadline}.</p>
-            `;
-        }
+// Advanced Brief Generator with AI-like intelligence
+class BriefGenerator {
+    constructor() {
+        this.nameGenerator = new NameGenerator();
     }
 
-    return { brief, roadmap };
+    generate(config) {
+        const name = this.nameGenerator.generate(config.category, config.industry, config.tone);
+        const brief = this.generateBrief(name, config);
+        const roadmap = this.generateRoadmap(config);
+        const insights = this.generateAIInsights(config);
+        const colorPalette = this.generateColorPalette(config);
+        const typography = this.generateTypography(config);
+        
+        return {
+            name,
+            brief,
+            roadmap,
+            insights,
+            colorPalette,
+            typography,
+            metadata: {
+                generatedAt: new Date().toISOString(),
+                config,
+                version: '2.0'
+            }
+        };
+    }
+
+    generateBrief(name, config) {
+        const category = CATEGORIES[config.category];
+        const industry = INDUSTRIES[config.industry];
+        const tone = TONES[config.tone];
+        
+        const templates = this.getBriefTemplates();
+        const template = templates[config.category] || templates.default;
+        
+        return template
+            .replace('{name}', name)
+            .replace('{category}', category.name.toLowerCase())
+            .replace('{industry}', industry.name.toLowerCase())
+            .replace('{tone}', config.tone)
+            .replace('{audience}', this.getAudienceDescription(config.audience))
+            .replace('{complexity}', config.difficulty)
+            .replace('{timeline}', this.getTimelineDescription(config.timeline))
+            .replace('{trends}', industry.trends.join(', '));
+    }
+
+    generateRoadmap(config) {
+        const phases = this.getRoadmapPhases(config);
+        const timeline = this.getTimelinePhases(config.timeline, config.difficulty);
+        
+        let roadmap = '<div class="roadmap-container">';
+        roadmap += '<h3 class="text-xl font-bold mb-4 text-blue-400"><i class="fas fa-route mr-2"></i>Project Roadmap</h3>';
+        
+        phases.forEach((phase, index) => {
+            const timeframe = timeline[index] || '1-2 days';
+            roadmap += `
+                <div class="roadmap-phase mb-6 p-4 bg-white/5 rounded-xl border-l-4 border-blue-500">
+                    <div class="flex items-center mb-2">
+                        <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-sm font-bold mr-3">
+                            ${index + 1}
+                        </div>
+                        <h4 class="font-semibold text-lg">${phase.title}</h4>
+                        <span class="ml-auto text-sm text-gray-400">${timeframe}</span>
+                    </div>
+                    <p class="text-gray-300 mb-3">${phase.description}</p>
+                    <ul class="space-y-1">
+                        ${phase.tasks.map(task => `<li class="flex items-center text-sm text-gray-400"><i class="fas fa-chevron-right mr-2 text-blue-400 text-xs"></i>${task}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        });
+        
+        roadmap += '</div>';
+        return roadmap;
+    }
+
+    generateAIInsights(config) {
+        const insights = [];
+        
+        // Industry trends
+        const industry = INDUSTRIES[config.industry];
+        insights.push({
+            type: 'trend',
+            title: 'Industry Trends',
+            content: `Current trends in ${industry.name.toLowerCase()} include: ${industry.trends.join(', ')}. Consider incorporating these elements to stay relevant.`,
+            icon: 'fa-chart-line'
+        });
+
+        // Competitive analysis
+        insights.push({
+            type: 'competitive',
+            title: 'Competitive Landscape',
+            content: this.getCompetitiveInsight(config),
+            icon: 'fa-chess'
+        });
+
+        // User experience
+        insights.push({
+            type: 'ux',
+            title: 'User Experience Focus',
+            content: this.getUXInsight(config),
+            icon: 'fa-users'
+        });
+
+        // Technical considerations
+        insights.push({
+            type: 'technical',
+            title: 'Technical Considerations',
+            content: this.getTechnicalInsight(config),
+            icon: 'fa-cog'
+        });
+
+        return insights;
+    }
+
+    generateColorPalette(config) {
+        const industry = INDUSTRIES[config.industry];
+        const baseColors = industry.colors;
+        
+        // Generate complementary colors based on industry and tone
+        const palette = {
+            primary: baseColors[0],
+            secondary: baseColors[1],
+            accent: this.generateAccentColor(config.tone),
+            neutral: this.generateNeutralColor(config.tone),
+            background: this.generateBackgroundColor(config.tone)
+        };
+
+        return palette;
+    }
+
+    generateTypography(config) {
+        const fonts = this.getFontRecommendations(config);
+        return {
+            primary: fonts.primary,
+            secondary: fonts.secondary,
+            rationale: fonts.rationale
+        };
+    }
+
+    // Helper methods
+    getBriefTemplates() {
+        return {
+            logo: "Design a distinctive logo for '{name}', a {tone} {industry} company. Create a mark that resonates with {audience} while maintaining {complexity} design sophistication. The logo should embody current {industry} trends including {trends}. Timeline: {timeline}.",
+            
+            brand: "Develop a comprehensive brand identity for '{name}', establishing a {tone} presence in the {industry} sector. Target {audience} with a cohesive visual system that reflects {complexity} brand strategy. Consider industry trends: {trends}. Timeline: {timeline}.",
+            
+            website: "Design a {tone} website for '{name}', a {industry} business targeting {audience}. Create a {complexity} digital experience that incorporates current trends: {trends}. Focus on user experience and conversion optimization. Timeline: {timeline}.",
+            
+            app: "Create a {tone} mobile/web application interface for '{name}' in the {industry} space. Design for {audience} with {complexity} user experience patterns. Integrate trending features: {trends}. Timeline: {timeline}.",
+            
+            packaging: "Design innovative packaging for '{name}', a {industry} product with a {tone} brand personality. Appeal to {audience} through {complexity} packaging solutions. Consider sustainability trends: {trends}. Timeline: {timeline}.",
+            
+            default: "Create a {tone} design solution for '{name}' in the {industry} sector. Target {audience} with {complexity} creative execution. Incorporate relevant trends: {trends}. Timeline: {timeline}."
+        };
+    }
+
+    getRoadmapPhases(config) {
+        const basePhases = [
+            {
+                title: 'Discovery & Research',
+                description: 'Understanding the brand, market, and user needs',
+                tasks: ['Market research', 'Competitor analysis', 'User personas', 'Brand audit']
+            },
+            {
+                title: 'Concept Development',
+                description: 'Ideation and initial design exploration',
+                tasks: ['Brainstorming sessions', 'Mood boards', 'Initial sketches', 'Concept validation']
+            },
+            {
+                title: 'Design Development',
+                description: 'Refining and developing the chosen concept',
+                tasks: ['Design iterations', 'Color exploration', 'Typography selection', 'Feedback integration']
+            },
+            {
+                title: 'Finalization & Delivery',
+                description: 'Completing the design and preparing deliverables',
+                tasks: ['Final refinements', 'File preparation', 'Documentation', 'Handoff']
+            }
+        ];
+
+        // Customize phases based on category
+        if (config.category === 'brand') {
+            basePhases.splice(2, 0, {
+                title: 'Brand Strategy',
+                description: 'Defining brand positioning and messaging',
+                tasks: ['Brand positioning', 'Voice & tone', 'Messaging framework', 'Guidelines draft']
+            });
+        }
+
+        return basePhases;
+    }
+
+    getTimelinePhases(timeline, difficulty) {
+        const timeframes = {
+            rush: ['6-8 hours', '8-12 hours', '4-6 hours', '2-4 hours'],
+            normal: ['1-2 days', '2-3 days', '2-3 days', '1 day'],
+            extended: ['3-5 days', '5-7 days', '7-10 days', '2-3 days'],
+            flexible: ['1 week', '1-2 weeks', '2-3 weeks', '3-5 days']
+        };
+
+        return timeframes[timeline] || timeframes.normal;
+    }
+
+    getAudienceDescription(audience) {
+        const descriptions = {
+            general: 'general consumers across all demographics',
+            millennials: 'millennials (ages 25-40) who value authenticity and digital experiences',
+            genz: 'Gen Z (ages 18-24) who prioritize social impact and visual communication',
+            professionals: 'business professionals seeking credibility and efficiency',
+            creatives: 'creative professionals who appreciate innovative design and artistic expression',
+            families: 'families looking for trustworthy and practical solutions',
+            seniors: 'seniors who value clarity, reliability, and traditional approaches',
+            students: 'students seeking affordable, accessible, and trend-conscious options'
+        };
+        return descriptions[audience] || descriptions.general;
+    }
+
+    getTimelineDescription(timeline) {
+        const descriptions = {
+            rush: 'urgent delivery within 1-3 days',
+            normal: 'standard timeline of 1-2 weeks',
+            extended: 'extended timeline of 2-4 weeks for comprehensive development',
+            flexible: 'flexible timeline allowing for thorough iteration and refinement'
+        };
+        return descriptions[timeline] || descriptions.normal;
+    }
+
+    getCompetitiveInsight(config) {
+        const insights = [
+            `In the ${config.industry} sector, successful designs often balance innovation with familiarity.`,
+            `Consider how leading ${config.industry} brands use ${config.tone} design approaches to connect with their audience.`,
+            `Differentiation opportunities exist in areas where competitors may be following similar visual patterns.`
+        ];
+        return insights[Math.floor(Math.random() * insights.length)];
+    }
+
+    getUXInsight(config) {
+        const insights = [
+            `${config.audience} typically responds well to ${config.tone} design approaches that prioritize clarity and usability.`,
+            `Consider accessibility requirements and inclusive design principles for your target demographic.`,
+            `User testing should focus on emotional response and practical usability for optimal results.`
+        ];
+        return insights[Math.floor(Math.random() * insights.length)];
+    }
+
+    getTechnicalInsight(config) {
+        const categoryInsights = {
+            logo: 'Ensure scalability from favicon size (16px) to billboard applications. Consider monochrome versions.',
+            website: 'Optimize for mobile-first design, page speed, and SEO considerations.',
+            app: 'Follow platform-specific design guidelines (iOS HIG, Material Design) for native feel.',
+            packaging: 'Consider printing limitations, material constraints, and sustainability requirements.',
+            default: 'Plan for multiple format deliverables and future scalability needs.'
+        };
+        return categoryInsights[config.category] || categoryInsights.default;
+    }
+
+    generateAccentColor(tone) {
+        const accents = {
+            professional: '#0066CC',
+            playful: '#FF6B35',
+            minimalist: '#2D3748',
+            bold: '#E53E3E',
+            elegant: '#6B46C1',
+            modern: '#00D4AA',
+            vintage: '#D69E2E',
+            creative: '#ED64A6'
+        };
+        return accents[tone] || '#3182CE';
+    }
+
+    generateNeutralColor(tone) {
+        const neutrals = {
+            professional: '#718096',
+            playful: '#A0AEC0',
+            minimalist: '#E2E8F0',
+            bold: '#4A5568',
+            elegant: '#2D3748',
+            modern: '#CBD5E0',
+            vintage: '#F7FAFC',
+            creative: '#EDF2F7'
+        };
+        return neutrals[tone] || '#718096';
+    }
+
+    generateBackgroundColor(tone) {
+        const backgrounds = {
+            professional: '#FFFFFF',
+            playful: '#F7FAFC',
+            minimalist: '#FFFFFF',
+            bold: '#1A202C',
+            elegant: '#F7FAFC',
+            modern: '#FFFFFF',
+            vintage: '#FFFEF7',
+            creative: '#FAFAFA'
+        };
+        return backgrounds[tone] || '#FFFFFF';
+    }
+
+    getFontRecommendations(config) {
+        const recommendations = {
+            professional: {
+                primary: 'Inter, Helvetica Neue, Arial',
+                secondary: 'Georgia, Times New Roman, serif',
+                rationale: 'Clean sans-serif for headers with classic serif for body text ensures readability and professionalism.'
+            },
+            playful: {
+                primary: 'Poppins, Nunito, Roboto',
+                secondary: 'Open Sans, Lato, sans-serif',
+                rationale: 'Rounded, friendly fonts that convey approachability while maintaining legibility.'
+            },
+            minimalist: {
+                primary: 'Inter, System UI, sans-serif',
+                secondary: 'SF Pro Text, Segoe UI, sans-serif',
+                rationale: 'System fonts provide clean, unobtrusive typography that focuses attention on content.'
+            },
+            bold: {
+                primary: 'Montserrat, Oswald, Impact',
+                secondary: 'Source Sans Pro, Arial, sans-serif',
+                rationale: 'Strong, condensed fonts for headlines paired with clean sans-serif for readability.'
+            },
+            elegant: {
+                primary: 'Playfair Display, Cormorant, serif',
+                secondary: 'Source Sans Pro, Lato, sans-serif',
+                rationale: 'Sophisticated serif fonts for elegance balanced with clean sans-serif for modern appeal.'
+            },
+            modern: {
+                primary: 'Inter, SF Pro Display, system-ui',
+                secondary: 'SF Pro Text, Roboto, sans-serif',
+                rationale: 'Contemporary system fonts that provide excellent readability across all devices.'
+            },
+            vintage: {
+                primary: 'Crimson Text, EB Garamond, serif',
+                secondary: 'Source Sans Pro, Open Sans, sans-serif',
+                rationale: 'Classic serif fonts evoke heritage and tradition while modern sans-serif ensures accessibility.'
+            },
+            creative: {
+                primary: 'Work Sans, Nunito, Raleway',
+                secondary: 'Merriweather, Source Serif Pro, serif',
+                rationale: 'Expressive fonts that showcase creativity while maintaining professional readability.'
+            }
+        };
+        return recommendations[config.tone] || recommendations.modern;
+    }
 }
 
+// Initialize the app
+document.addEventListener('DOMContentLoaded', function() {
+    initializeApp();
+});
+
+function initializeApp() {
+    // Initialize generators
+    window.briefGenerator = new BriefGenerator();
+    
+    // Setup event listeners
+    setupEventListeners();
+    
+    // Initialize UI
+    initializeUI();
+    
+    // Load saved data
+    loadSavedData();
+    
+    console.log('BriefAI Pro initialized successfully');
+}
+
+function setupEventListeners() {
+    // Category change handler
+    document.getElementById('category').addEventListener('change', toggleSubcategories);
+    
+    // Advanced options toggle
+    const advancedToggle = document.querySelector('[onclick="toggleAdvancedOptions()"]');
+    if (advancedToggle) {
+        advancedToggle.addEventListener('click', toggleAdvancedOptions);
+    }
+    
+    // Modal close handlers
+    document.addEventListener('click', function(e) {
+        if (e.target.id === 'modalOverlay') {
+            closeModal();
+        }
+    });
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeModal();
+        }
+        if (e.ctrlKey || e.metaKey) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                generateBrief();
+            }
+        }
+    });
+}
+
+function initializeUI() {
+    // Apply dark mode if enabled
+    if (AppState.darkMode) {
+        document.body.classList.add('dark-mode');
+    }
+    
+    // Initialize tooltips or other UI components
+    initializeTooltips();
+}
+
+function loadSavedData() {
+    // Load user preferences
+    const savedSettings = localStorage.getItem('userSettings');
+    if (savedSettings) {
+        const settings = JSON.parse(savedSettings);
+        applyUserSettings(settings);
+    }
+}
+
+// Main Functions
 function toggleSubcategories() {
-    const category = document.getElementById("category").value;
-    const logoSubcategory = document.getElementById("logoSubcategory");
-    const posterSubcategory = document.getElementById("posterSubcategory");
-    const bannerSubcategory = document.getElementById("bannerSubcategory");
-    logoSubcategory.classList.toggle("hidden", category !== "logo");
-    posterSubcategory.classList.toggle("hidden", category !== "poster");
-    bannerSubcategory.classList.toggle("hidden", category !== "banner");
+    const category = document.getElementById('category').value;
+    const container = document.getElementById('subcategoryContainer');
+    
+    if (category === 'random' || !CATEGORIES[category]) {
+        container.innerHTML = '';
+        return;
+    }
+    
+    const categoryData = CATEGORIES[category];
+    const subcategories = categoryData.subcategories;
+    
+    let html = `
+        <label class="block text-sm font-semibold text-gray-300 mb-3">
+            <i class="fas fa-tags mr-2"></i>${categoryData.name} Type
+        </label>
+        <select id="subcategory" class="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300">
+            <option value="random">🎲 Random ${categoryData.name} Type</option>
+    `;
+    
+    Object.entries(subcategories).forEach(([key, value]) => {
+        html += `<option value="${key}">${value}</option>`;
+    });
+    
+    html += '</select>';
+    container.innerHTML = html;
+}
+
+function toggleAdvancedOptions() {
+    const options = document.getElementById('advancedOptions');
+    const icon = document.getElementById('advancedToggleIcon');
+    
+    if (options.classList.contains('hidden')) {
+        options.classList.remove('hidden');
+        options.classList.add('animate-slideUp');
+        icon.classList.remove('fa-chevron-down');
+        icon.classList.add('fa-chevron-up');
+    } else {
+        options.classList.add('hidden');
+        icon.classList.remove('fa-chevron-up');
+        icon.classList.add('fa-chevron-down');
+    }
 }
 
 function generateBrief() {
-    const generateButton = document.querySelector(".btn");
-    generateButton.disabled = true;
-    generateButton.textContent = "Generating...";
-
+    // Show loading state
+    showLoading();
+    
+    // Get form data
+    const config = getFormConfig();
+    
+    // Validate configuration
+    if (!validateConfig(config)) {
+        hideLoading();
+        showToast('Please check your configuration', 'error');
+        return;
+    }
+    
+    // Simulate AI processing time
     setTimeout(() => {
-        const category = document.getElementById("category").value;
-        const logoSubcategory = document.getElementById("logoSubcategorySelect").value;
-        const posterSubcategory = document.getElementById("posterSubcategorySelect").value;
-        const bannerSubcategory = document.getElementById("bannerSubcategorySelect").value;
-        const difficulty = document.getElementById("difficulty").value;
-
-        let selectedCategory, selectedSubcategory;
-
-        if (category === "random") {
-            const categories = ["logo", "poster", "banner"];
-            selectedCategory = categories[Math.floor(Math.random() * categories.length)];
-
-            if (selectedCategory === "logo") {
-                const logoSubcategories = ["abstract", "attorney", "animal", "art", "agriculture", "business", "brand", "construction",
-                    "children", "company", "communication", "club", "car", "environment", "education", "food",
-                    "fashion", "finance", "holiday", "industrial", "letter", "life", "music", "medical",
-                    "nature", "nonprofit", "restaurant", "retail", "religion", "sports", "storage", "science",
-                    "transportation", "travel"];
-                selectedSubcategory = logoSubcategories[Math.floor(Math.random() * logoSubcategories.length)];
-            } else if (selectedCategory === "poster") {
-                const posterSubcategories = ["campaign", "formative", "social", "fashion", "movie", "typography", "minimalist", "political", "sale"];
-                selectedSubcategory = posterSubcategories[Math.floor(Math.random() * posterSubcategories.length)];
-            } else if (selectedCategory === "banner") {
-                const bannerSubcategories = ["sale", "event", "ad"];
-                selectedSubcategory = bannerSubcategories[Math.floor(Math.random() * bannerSubcategories.length)];
-            }
-        } else {
-            selectedCategory = category;
-            if (selectedCategory === "logo") {
-                const logoSubcategories = ["abstract", "attorney", "animal", "art", "agriculture", "business", "brand", "construction",
-                    "children", "company", "communication", "club", "car", "environment", "education", "food",
-                    "fashion", "finance", "holiday", "industrial", "letter", "life", "music", "medical",
-                    "nature", "nonprofit", "restaurant", "retail", "religion", "sports", "storage", "science",
-                    "transportation", "travel"];
-                selectedSubcategory = logoSubcategory === "random" ? logoSubcategories[Math.floor(Math.random() * logoSubcategories.length)] : logoSubcategory;
-            } else if (selectedCategory === "poster") {
-                const posterSubcategories = ["campaign", "formative", "social", "fashion", "movie", "typography", "minimalist", "political", "sale"];
-                selectedSubcategory = posterSubcategory === "random" ? posterSubcategories[Math.floor(Math.random() * posterSubcategories.length)] : posterSubcategory;
-            } else if (selectedCategory === "banner") {
-                const bannerSubcategories = ["sale", "event", "ad"];
-                selectedSubcategory = bannerSubcategory === "random" ? bannerSubcategories[Math.floor(Math.random() * bannerSubcategories.length)] : bannerSubcategory;
-            }
+        try {
+            // Generate the brief
+            const briefData = window.briefGenerator.generate(config);
+            
+            // Store current brief
+            AppState.currentBrief = briefData;
+            
+            // Display the brief
+            displayBrief(briefData);
+            
+            // Hide loading
+            hideLoading();
+            
+            // Show success message
+            showToast('Brief generated successfully!', 'success');
+            
+            // Track generation
+            trackBriefGeneration(config);
+            
+        } catch (error) {
+            console.error('Error generating brief:', error);
+            hideLoading();
+            showToast('Error generating brief. Please try again.', 'error');
         }
-
-        // Debugging log to verify selections
-        console.log("Selected Category:", selectedCategory);
-        console.log("Selected Subcategory:", selectedSubcategory);
-
-        const name = generateUniqueName(selectedCategory, selectedSubcategory);
-        const { brief, roadmap } = generateUniqueBrief(name, selectedCategory, selectedSubcategory, difficulty);
-
-        document.getElementById("briefOutput").innerHTML = brief;
-        document.getElementById("roadmap").innerHTML = roadmap;
-
-        generateButton.disabled = false;
-        generateButton.textContent = "Generate Brief";
-    }, 1000);
+    }, 2000); // Simulate processing time
 }
 
-function addColor() {
-    const color = document.getElementById("colorPicker").value;
-    customColors.push(color);
-    updateColorPalette();
+function getFormConfig() {
+    return {
+        category: document.getElementById('category').value,
+        subcategory: document.getElementById('subcategory')?.value || 'random',
+        industry: document.getElementById('industry').value,
+        tone: document.getElementById('tone').value,
+        difficulty: document.getElementById('difficulty').value,
+        audience: document.getElementById('audience').value,
+        budget: document.getElementById('budget')?.value || 'medium',
+        timeline: document.getElementById('timeline')?.value || 'normal',
+        aiEnhancement: document.getElementById('aiEnhancement')?.checked || false
+    };
 }
 
-function updateColorPalette() {
-    const paletteDiv = document.getElementById("customColors");
-    paletteDiv.innerHTML = customColors.map(color => `
-        <div class="color-swatch" style="background-color: ${color};" onclick="copyColor('${color}')">
-            <span>${color}</span>
+function validateConfig(config) {
+    return config.category && config.industry && config.tone && config.difficulty && config.audience;
+}
+
+function displayBrief(briefData) {
+    const container = document.getElementById('briefContainer');
+    
+    let html = `
+        <div class="space-y-6 animate-fadeIn">
+            <!-- Brief Header -->
+            <div class="bg-gradient-to-r from-blue-600/20 to-purple-600/20 p-6 rounded-xl border border-blue-500/30">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-2xl font-bold text-blue-400">${briefData.name}</h3>
+                    <div class="flex items-center space-x-2 text-sm text-gray-400">
+                        <i class="fas fa-calendar mr-1"></i>
+                        <span>${new Date().toLocaleDateString()}</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div class="text-center p-2 bg-white/10 rounded-lg">
+                        <div class="text-blue-400 font-semibold">Category</div>
+                        <div class="capitalize">${briefData.metadata.config.category}</div>
+                    </div>
+                    <div class="text-center p-2 bg-white/10 rounded-lg">
+                        <div class="text-green-400 font-semibold">Industry</div>
+                        <div class="capitalize">${briefData.metadata.config.industry}</div>
+                    </div>
+                    <div class="text-center p-2 bg-white/10 rounded-lg">
+                        <div class="text-purple-400 font-semibold">Tone</div>
+                        <div class="capitalize">${briefData.metadata.config.tone}</div>
+                    </div>
+                    <div class="text-center p-2 bg-white/10 rounded-lg">
+                        <div class="text-orange-400 font-semibold">Level</div>
+                        <div class="capitalize">${briefData.metadata.config.difficulty}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Brief -->
+            <div class="bg-white/5 p-6 rounded-xl border border-white/10">
+                <h4 class="text-lg font-semibold mb-3 text-gray-300">
+                    <i class="fas fa-file-alt mr-2"></i>Project Brief
+                </h4>
+                <p class="text-gray-200 leading-relaxed text-lg">${briefData.brief}</p>
+            </div>
+
+            <!-- Color Palette -->
+            <div class="bg-white/5 p-6 rounded-xl border border-white/10">
+                <h4 class="text-lg font-semibold mb-4 text-gray-300">
+                    <i class="fas fa-palette mr-2"></i>Recommended Color Palette
+                </h4>
+                <div class="flex space-x-3 mb-3">
+                    ${Object.entries(briefData.colorPalette).map(([name, color]) => `
+                        <div class="text-center">
+                            <div class="w-12 h-12 rounded-lg border-2 border-white/20 mb-2" style="background-color: ${color}"></div>
+                            <div class="text-xs text-gray-400 capitalize">${name}</div>
+                            <div class="text-xs text-gray-500">${color}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+
+            <!-- Typography -->
+            <div class="bg-white/5 p-6 rounded-xl border border-white/10">
+                <h4 class="text-lg font-semibold mb-3 text-gray-300">
+                    <i class="fas fa-font mr-2"></i>Typography Recommendations
+                </h4>
+                <div class="space-y-3">
+                    <div>
+                        <div class="text-sm text-gray-400 mb-1">Primary Font</div>
+                        <div class="font-semibold">${briefData.typography.primary}</div>
+                    </div>
+                    <div>
+                        <div class="text-sm text-gray-400 mb-1">Secondary Font</div>
+                        <div class="font-semibold">${briefData.typography.secondary}</div>
+                    </div>
+                    <div class="text-sm text-gray-300 bg-white/5 p-3 rounded-lg">
+                        <strong>Rationale:</strong> ${briefData.typography.rationale}
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Insights -->
+            ${briefData.metadata.config.aiEnhancement ? `
+                <div class="bg-gradient-to-r from-purple-600/20 to-pink-600/20 p-6 rounded-xl border border-purple-500/30">
+                    <h4 class="text-lg font-semibold mb-4 text-purple-400">
+                        <i class="fas fa-robot mr-2"></i>AI-Powered Insights
+                    </h4>
+                    <div class="grid gap-4">
+                        ${briefData.insights.map(insight => `
+                            <div class="bg-white/5 p-4 rounded-lg border border-white/10">
+                                <div class="flex items-center mb-2">
+                                    <i class="fas ${insight.icon} text-purple-400 mr-2"></i>
+                                    <h5 class="font-semibold">${insight.title}</h5>
+                                </div>
+                                <p class="text-gray-300 text-sm">${insight.content}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
+
+            <!-- Roadmap -->
+            <div class="bg-white/5 p-6 rounded-xl border border-white/10">
+                ${briefData.roadmap}
+            </div>
         </div>
-    `).join("");
+    `;
+    
+    container.innerHTML = html;
+    
+    // Show action buttons
+    document.getElementById('actionButtons').classList.remove('hidden');
+    document.getElementById('actionButtons').classList.add('animate-slideUp');
 }
 
-function updateGradient() {
-    if (customColors.length >= 2) {
-        const gradientType = document.getElementById("gradientType").value;
-        let gradient;
-
-        switch (gradientType) {
-            case "linear": gradient = `linear-gradient(to right, ${customColors.join(", ")})`; break;
-            case "radial": gradient = `radial-gradient(circle, ${customColors.join(", ")})`; break;
-            case "angular": gradient = `conic-gradient(${customColors.join(", ")})`; break;
-            case "diamond": gradient = `linear-gradient(45deg, ${customColors.join(", ")})`; break;
-            case "mesh": gradient = `repeating-linear-gradient(45deg, ${customColors.join(", ")})`; break;
-            case "shape-blur": gradient = `linear-gradient(to right, ${customColors.join(", ")})`; break;
-            case "freeform": gradient = `linear-gradient(to right, ${customColors.join(", ")})`; break;
-            case "multiple": gradient = `linear-gradient(to right, ${customColors.join(", ")}), radial-gradient(circle, ${customColors.join(", ")})`; break;
-            default: gradient = `linear-gradient(to right, ${customColors.join(", ")})`;
-        }
-
-        document.getElementById("gradientPreview").style.background = gradient;
-    } else {
-        alert("Please add at least 2 colors to create a gradient!");
-    }
-}
-
-function resetGradient() {
-    customColors = [];
-    updateColorPalette();
-    document.getElementById("gradientPreview").style.background = "linear-gradient(to right, #ffffff, #000000)";
-    alert("Gradient reset successfully!");
-}
-
-function copyColor(color) {
-    navigator.clipboard.writeText(color).then(() => {
-        alert(`Color ${color} copied to clipboard!`);
-    });
-}
-
-function copyGradientCode() {
-    if (customColors.length >= 2) {
-        const gradientType = document.getElementById("gradientType").value;
-        let gradientCode;
-
-        switch (gradientType) {
-            case "linear": gradientCode = `background: linear-gradient(to right, ${customColors.join(", ")})`; break;
-            case "radial": gradientCode = `background: radial-gradient(circle, ${customColors.join(", ")})`; break;
-            case "angular": gradientCode = `background: conic-gradient(${customColors.join(", ")})`; break;
-            case "diamond": gradientCode = `background: linear-gradient(45deg, ${customColors.join(", ")})`; break;
-            case "mesh": gradientCode = `background: repeating-linear-gradient(45deg, ${customColors.join(", ")})`; break;
-            case "shape-blur": gradientCode = `background: linear-gradient(to right, ${customColors.join(", ")})`; break;
-            case "freeform": gradientCode = `background: linear-gradient(to right, ${customColors.join(", ")})`; break;
-            case "multiple": gradientCode = `background: linear-gradient(to right, ${customColors.join(", ")}), radial-gradient(circle, ${customColors.join(", ")})`; break;
-            default: gradientCode = `background: linear-gradient(to right, ${customColors.join(", ")}`;
-        }
-
-        navigator.clipboard.writeText(gradientCode).then(() => {
-            alert("Gradient code copied to clipboard:\n" + gradientCode);
-        }).catch(() => {
-            fallbackCopyText(gradientCode);
-        });
-    } else {
-        alert("Please add at least 2 colors to generate a gradient!");
-    }
-}
-
-function fallbackCopyText(text) {
-    const textarea = document.createElement("textarea");
-    textarea.value = text;
-    document.body.appendChild(textarea);
-    textarea.select();
-    try {
-        document.execCommand("copy");
-        alert("Gradient code copied to clipboard:\n" + text);
-    } catch (err) {
-        alert("Failed to copy gradient code. Please try again.");
-    }
-    document.body.removeChild(textarea);
-}
-
-function copyBrief() {
-    const briefText = document.getElementById("briefOutput").innerText + "\n\n" + document.getElementById("roadmap").innerText.replace("Roadmap:", "Roadmap:\n");
-    navigator.clipboard.writeText(briefText).then(() => {
-        alert("Brief and roadmap copied to clipboard!");
-    });
-}
-
-function downloadBrief() {
-    const briefContent = document.getElementById("briefOutput").innerHTML;
-    const roadmapContent = document.getElementById("roadmap").innerHTML;
-    const gradientContent = document.getElementById("gradientPreview").style.background;
-    const paletteContent = customColors.join(", ");
-    const format = document.getElementById("downloadFormat").value;
-    const signature = `<p style="margin-top: 20px; font-size: 14px;">Brief by <a href="http://www.facebook.com/graphicshop786" target="_blank" style="color: #10b981; text-decoration: none;">Bilal Hussain</a></p>`;
-
-    if (!briefContent || !roadmapContent) {
-        alert("Please generate a brief first!");
+// Export Functions
+function exportBrief(format) {
+    if (!AppState.currentBrief) {
+        showToast('Please generate a brief first', 'error');
         return;
     }
 
+    showLoading();
+
     try {
-        if (format === "html") {
-            const blob = new Blob([`
-                <!DOCTYPE html>
-                <html>
-                <head><title>Design Brief</title><style>.color-swatch {width: 40px; height: 40px; display: inline-block; border-radius: 8px; margin: 4px; border: 2px solid #374151;}</style></head>
-                <body style="background: #1f2937; color: #e2e8f0; padding: 20px;">
-                    <h2 style="font-size: 24px; font-weight: 600;">Your Design Brief</h2>
-                    <p>${briefContent}</p>
-                    ${roadmapContent}
-                    <h3 style="font-size: 18px; margin-top: 20px;">Custom Mood Board Gradient</h3>
-                    <div style="height: 120px; border-radius: 12px; background: ${gradientContent};"></div>
-                    <h3 style="font-size: 18px; margin-top: 20px;">Custom Color Palette</h3>
-                    <div>${customColors.map(color => `<div class="color-swatch" style="background-color: ${color};"></div>`).join("")}</div>
-                    <p>${paletteContent}</p>
-                    ${signature}
-                </body>
-                </html>
-            `], { type: "text/html" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "design_brief.html";
-            a.click();
-            URL.revokeObjectURL(url);
-        } else if (format === "txt") {
-            const textContent = `${document.getElementById("briefOutput").innerText}\n\n${document.getElementById("roadmap").innerText}\n\nCustom Mood Board Gradient: ${gradientContent}\nCustom Colors: ${paletteContent}\n\nBrief by Bilal Hussain (http://www.facebook.com/graphicshop786)`;
-            const blob = new Blob([textContent], { type: "text/plain" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "design_brief.txt";
-            a.click();
-            URL.revokeObjectURL(url);
+        switch (format) {
+            case 'pdf':
+                exportToPDF();
+                break;
+            case 'docx':
+                exportToWord();
+                break;
+            case 'html':
+                exportToHTML();
+                break;
+            case 'json':
+                exportToJSON();
+                break;
+            default:
+                throw new Error('Unsupported format');
         }
+        
+        showToast(`Brief exported as ${format.toUpperCase()}`, 'success');
     } catch (error) {
-        console.error("Download error:", error);
-        alert("Download failed. Please try again or check console for errors.");
+        console.error('Export error:', error);
+        showToast('Export failed. Please try again.', 'error');
+    } finally {
+        hideLoading();
     }
 }
+
+function exportToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const brief = AppState.currentBrief;
+    
+    // Add content to PDF
+    doc.setFontSize(20);
+    doc.text(brief.name, 20, 30);
+    
+    doc.setFontSize(12);
+    doc.text('Generated: ' + new Date().toLocaleDateString(), 20, 45);
+    
+    doc.setFontSize(14);
+    doc.text('Project Brief:', 20, 65);
+    
+    // Split long text into lines
+    const briefText = doc.splitTextToSize(brief.brief, 170);
+    doc.setFontSize(10);
+    doc.text(briefText, 20, 80);
+    
+    // Save the PDF
+    doc.save(`${brief.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_brief.pdf`);
+}
+
+function exportToWord() {
+    // For a full implementation, you'd use a library like docx
+    // For now, we'll create a simple Word-compatible HTML
+    const brief = AppState.currentBrief;
+    const content = createWordContent(brief);
+    
+    const blob = new Blob([content], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${brief.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_brief.doc`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function exportToHTML() {
+    const brief = AppState.currentBrief;
+    const htmlContent = createHTMLExport(brief);
+    
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${brief.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_brief.html`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function exportToJSON() {
+    const brief = AppState.currentBrief;
+    const jsonContent = JSON.stringify(brief, null, 2);
+    
+    const blob = new Blob([jsonContent], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${brief.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_brief.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// Utility Functions
+function showLoading() {
+    document.getElementById('loadingOverlay').classList.remove('hidden');
+}
+
+function hideLoading() {
+    document.getElementById('loadingOverlay').classList.add('hidden');
+}
+
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toastMessage');
+    
+    toastMessage.textContent = message;
+    
+    // Update toast appearance based on type
+    toast.className = `fixed top-4 right-4 z-50 px-6 py-4 rounded-xl shadow-lg transition-transform duration-300 ${
+        type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
+    }`;
+    
+    // Show toast
+    toast.classList.remove('hidden', 'translate-x-full');
+    
+    // Hide after 3 seconds
+    setTimeout(() => {
+        toast.classList.add('translate-x-full');
+        setTimeout(() => {
+            toast.classList.add('hidden');
+        }, 300);
+    }, 3000);
+}
+
+function showModal(content) {
+    const overlay = document.getElementById('modalOverlay');
+    const modalContent = document.getElementById('modalContent');
+    
+    modalContent.innerHTML = content;
+    overlay.classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('modalOverlay').classList.add('hidden');
+}
+
+// Additional Functions
+function copyBrief() {
+    if (!AppState.currentBrief) {
+        showToast('No brief to copy', 'error');
+        return;
+    }
+    
+    const briefText = createPlainTextBrief(AppState.currentBrief);
+    navigator.clipboard.writeText(briefText).then(() => {
+        showToast('Brief copied to clipboard!', 'success');
+    }).catch(() => {
+        showToast('Failed to copy brief', 'error');
+    });
+}
+
+function shareBrief() {
+    if (!AppState.currentBrief) {
+        showToast('No brief to share', 'error');
+        return;
+    }
+    
+    if (navigator.share) {
+        navigator.share({
+            title: AppState.currentBrief.name,
+            text: 'Check out this design brief I generated with BriefAI Pro',
+            url: window.location.href
+        }).catch(console.error);
+    } else {
+        // Fallback - copy URL to clipboard
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            showToast('Link copied to clipboard!', 'success');
+        });
+    }
+}
+
+function saveBrief() {
+    if (!AppState.currentBrief) {
+        showToast('No brief to save', 'error');
+        return;
+    }
+    
+    AppState.savedBriefs.push({
+        ...AppState.currentBrief,
+        savedAt: new Date().toISOString()
+    });
+    
+    localStorage.setItem('savedBriefs', JSON.stringify(AppState.savedBriefs));
+    showToast('Brief saved successfully!', 'success');
+}
+
+function randomizeSettings() {
+    // Randomize form values
+    const categories = Object.keys(CATEGORIES);
+    const industries = Object.keys(INDUSTRIES);
+    const tones = Object.keys(TONES);
+    const difficulties = ['easy', 'medium', 'hard', 'expert'];
+    const audiences = ['general', 'millennials', 'genz', 'professionals', 'creatives', 'families', 'seniors', 'students'];
+    
+    document.getElementById('category').value = categories[Math.floor(Math.random() * categories.length)];
+    document.getElementById('industry').value = industries[Math.floor(Math.random() * industries.length)];
+    document.getElementById('tone').value = tones[Math.floor(Math.random() * tones.length)];
+    document.getElementById('difficulty').value = difficulties[Math.floor(Math.random() * difficulties.length)];
+    document.getElementById('audience').value = audiences[Math.floor(Math.random() * audiences.length)];
+    
+    toggleSubcategories();
+    showToast('Settings randomized!', 'success');
+}
+
+function resetSettings() {
+    document.getElementById('category').value = 'random';
+    document.getElementById('industry').value = 'random';
+    document.getElementById('tone').value = 'professional';
+    document.getElementById('difficulty').value = 'medium';
+    document.getElementById('audience').value = 'general';
+    
+    toggleSubcategories();
+    showToast('Settings reset to default', 'success');
+}
+
+function saveTemplate() {
+    const config = getFormConfig();
+    const templateName = prompt('Enter a name for this template:');
+    
+    if (templateName) {
+        AppState.templates.push({
+            name: templateName,
+            config: config,
+            createdAt: new Date().toISOString()
+        });
+        
+        localStorage.setItem('templates', JSON.stringify(AppState.templates));
+        showToast('Template saved!', 'success');
+    }
+}
+
+// Helper Functions for Export
+function createPlainTextBrief(brief) {
+    return `${brief.name}
+
+Project Brief:
+${brief.brief}
+
+Generated: ${new Date(brief.metadata.generatedAt).toLocaleDateString()}
+Configuration: ${brief.metadata.config.category} | ${brief.metadata.config.industry} | ${brief.metadata.config.tone}
+
+---
+Created with BriefAI Pro
+`;
+}
+
+function createWordContent(brief) {
+    return `
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+    <meta charset="utf-8">
+    <title>${brief.name}</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; }
+        h1 { color: #2563eb; }
+        h2 { color: #4f46e5; margin-top: 2em; }
+        .brief-content { background: #f8fafc; padding: 1em; border-left: 4px solid #3b82f6; }
+    </style>
+</head>
+<body>
+    <h1>${brief.name}</h1>
+    <p><strong>Generated:</strong> ${new Date(brief.metadata.generatedAt).toLocaleDateString()}</p>
+    
+    <h2>Project Brief</h2>
+    <div class="brief-content">
+        <p>${brief.brief}</p>
+    </div>
+    
+    <h2>Recommended Colors</h2>
+    <ul>
+        ${Object.entries(brief.colorPalette).map(([name, color]) => `<li><strong>${name}:</strong> ${color}</li>`).join('')}
+    </ul>
+    
+    <h2>Typography</h2>
+    <p><strong>Primary:</strong> ${brief.typography.primary}</p>
+    <p><strong>Secondary:</strong> ${brief.typography.secondary}</p>
+    <p><strong>Rationale:</strong> ${brief.typography.rationale}</p>
+    
+    <hr>
+    <p><em>Generated with BriefAI Pro</em></p>
+</body>
+</html>
+    `;
+}
+
+function createHTMLExport(brief) {
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${brief.name} - Design Brief</title>
+    <style>
+        body { font-family: Inter, sans-serif; line-height: 1.6; margin: 0; padding: 2rem; background: #f8fafc; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 2rem; border-radius: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { color: #2563eb; margin-bottom: 0.5rem; }
+        h2 { color: #4f46e5; margin-top: 2rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .brief-content { background: #f1f5f9; padding: 1.5rem; border-radius: 0.5rem; border-left: 4px solid #3b82f6; margin: 1rem 0; }
+        .color-palette { display: flex; gap: 1rem; margin: 1rem 0; }
+        .color-swatch { text-align: center; }
+        .color-box { width: 50px; height: 50px; border-radius: 0.5rem; margin-bottom: 0.5rem; border: 2px solid #e5e7eb; }
+        .meta { background: #f8fafc; padding: 1rem; border-radius: 0.5rem; margin-bottom: 2rem; }
+        .footer { text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #e5e7eb; color: #6b7280; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="meta">
+            <strong>Generated:</strong> ${new Date(brief.metadata.generatedAt).toLocaleDateString()} | 
+            <strong>Category:</strong> ${brief.metadata.config.category} | 
+            <strong>Industry:</strong> ${brief.metadata.config.industry} | 
+            <strong>Tone:</strong> ${brief.metadata.config.tone}
+        </div>
+        
+        <h1>${brief.name}</h1>
+        
+        <h2>Project Brief</h2>
+        <div class="brief-content">
+            <p>${brief.brief}</p>
+        </div>
+        
+        <h2>Color Palette</h2>
+        <div class="color-palette">
+            ${Object.entries(brief.colorPalette).map(([name, color]) => `
+                <div class="color-swatch">
+                    <div class="color-box" style="background-color: ${color}"></div>
+                    <div style="font-size: 0.8rem; font-weight: bold; text-transform: capitalize;">${name}</div>
+                    <div style="font-size: 0.7rem; color: #6b7280;">${color}</div>
+                </div>
+            `).join('')}
+        </div>
+        
+        <h2>Typography</h2>
+        <p><strong>Primary Font:</strong> ${brief.typography.primary}</p>
+        <p><strong>Secondary Font:</strong> ${brief.typography.secondary}</p>
+        <div style="background: #f1f5f9; padding: 1rem; border-radius: 0.5rem; margin-top: 1rem;">
+            <strong>Rationale:</strong> ${brief.typography.rationale}
+        </div>
+        
+        ${brief.roadmap}
+        
+        <div class="footer">
+            Generated with <strong>BriefAI Pro</strong> - Advanced Design Brief Generator
+        </div>
+    </div>
+</body>
+</html>`;
+}
+
+// Navigation and UI Functions
+function scrollToGenerator() {
+    document.getElementById('generator').scrollIntoView({ behavior: 'smooth' });
+}
+
+function showFeatures() {
+    const featuresSection = document.getElementById('featuresSection');
+    featuresSection.classList.toggle('hidden');
+    
+    if (!featuresSection.classList.contains('hidden')) {
+        populateFeatures();
+        featuresSection.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+function populateFeatures() {
+    const featuresGrid = document.querySelector('#featuresSection .grid');
+    const features = [
+        {
+            icon: 'fa-robot',
+            title: 'AI-Powered Insights',
+            description: 'Get intelligent recommendations based on industry trends and competitive analysis.',
+            color: 'from-purple-500 to-pink-500'
+        },
+        {
+            icon: 'fa-palette',
+            title: 'Smart Color Palettes',
+            description: 'Automatically generated color schemes tailored to your industry and tone.',
+            color: 'from-blue-500 to-teal-500'
+        },
+        {
+            icon: 'fa-file-export',
+            title: 'Premium Export Options',
+            description: 'Export to PDF, DOCX, HTML, and JSON formats for any workflow.',
+            color: 'from-green-500 to-emerald-500'
+        },
+        {
+            icon: 'fa-route',
+            title: 'Detailed Roadmaps',
+            description: 'Step-by-step project roadmaps with timelines and deliverables.',
+            color: 'from-orange-500 to-red-500'
+        },
+        {
+            icon: 'fa-users',
+            title: 'Collaboration Tools',
+            description: 'Share briefs, save templates, and collaborate with your team.',
+            color: 'from-indigo-500 to-purple-500'
+        },
+        {
+            icon: 'fa-mobile-alt',
+            title: 'Mobile-First Design',
+            description: 'Fully responsive interface that works perfectly on all devices.',
+            color: 'from-pink-500 to-rose-500'
+        }
+    ];
+    
+    featuresGrid.innerHTML = features.map(feature => `
+        <div class="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-6 hover:transform hover:scale-105 transition-all duration-300">
+            <div class="w-12 h-12 bg-gradient-to-br ${feature.color} rounded-xl flex items-center justify-center mb-4">
+                <i class="fas ${feature.icon} text-white text-xl"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3">${feature.title}</h3>
+            <p class="text-gray-300">${feature.description}</p>
+        </div>
+    `).join('');
+}
+
+function showHelp() {
+    const helpContent = `
+        <h2 class="text-2xl font-bold mb-4 text-blue-400">
+            <i class="fas fa-question-circle mr-2"></i>How to Use BriefAI Pro
+        </h2>
+        <div class="space-y-4 text-gray-300">
+            <div>
+                <h3 class="font-semibold text-white mb-2">1. Configure Your Project</h3>
+                <p>Select your project category, industry, tone, and target audience. Use advanced options for more specific requirements.</p>
+            </div>
+            <div>
+                <h3 class="font-semibold text-white mb-2">2. Generate Your Brief</h3>
+                <p>Click "Generate Professional Brief" to create a comprehensive design brief with AI-powered insights and recommendations.</p>
+            </div>
+            <div>
+                <h3 class="font-semibold text-white mb-2">3. Export and Share</h3>
+                <p>Export your brief in multiple formats (PDF, DOCX, HTML, JSON) or share directly with your team.</p>
+            </div>
+            <div>
+                <h3 class="font-semibold text-white mb-2">4. Save and Organize</h3>
+                <p>Save briefs to your project library and create templates for future use.</p>
+            </div>
+        </div>
+        <div class="mt-6 pt-4 border-t border-gray-600">
+            <h3 class="font-semibold text-white mb-2">Keyboard Shortcuts</h3>
+            <ul class="text-sm text-gray-400 space-y-1">
+                <li><code class="bg-gray-800 px-2 py-1 rounded">Ctrl/Cmd + Enter</code> - Generate Brief</li>
+                <li><code class="bg-gray-800 px-2 py-1 rounded">Escape</code> - Close Modal</li>
+            </ul>
+        </div>
+        <button onclick="closeModal()" class="mt-6 w-full py-3 bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors duration-300">
+            Got it!
+        </button>
+    `;
+    showModal(helpContent);
+}
+
+function showHistory() {
+    const historyContent = `
+        <h2 class="text-2xl font-bold mb-4 text-purple-400">
+            <i class="fas fa-history mr-2"></i>Saved Briefs
+        </h2>
+        ${AppState.savedBriefs.length === 0 ? 
+            '<p class="text-gray-400 text-center py-8">No saved briefs yet. Generate your first brief to get started!</p>' :
+            `<div class="space-y-3 max-h-96 overflow-y-auto">
+                ${AppState.savedBriefs.slice(-10).reverse().map((brief, index) => `
+                    <div class="bg-white/5 p-4 rounded-xl border border-white/10 flex items-center justify-between">
+                        <div>
+                            <h3 class="font-semibold">${brief.name}</h3>
+                            <p class="text-sm text-gray-400">${new Date(brief.savedAt).toLocaleDateString()} • ${brief.metadata.config.category}</p>
+                        </div>
+                        <button onclick="loadSavedBrief(${AppState.savedBriefs.length - 1 - index})" class="px-4 py-2 bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors duration-300 text-sm">
+                            Load
+                        </button>
+                    </div>
+                `).join('')}
+            </div>`
+        }
+        <button onclick="closeModal()" class="mt-6 w-full py-3 bg-gray-600 rounded-xl hover:bg-gray-700 transition-colors duration-300">
+            Close
+        </button>
+    `;
+    showModal(historyContent);
+}
+
+function loadSavedBrief(index) {
+    const brief = AppState.savedBriefs[index];
+    if (brief) {
+        AppState.currentBrief = brief;
+        displayBrief(brief);
+        closeModal();
+        showToast('Brief loaded successfully!', 'success');
+    }
+}
+
+function toggleDarkMode() {
+    AppState.darkMode = !AppState.darkMode;
+    localStorage.setItem('darkMode', AppState.darkMode);
+    document.body.classList.toggle('dark-mode', AppState.darkMode);
+    showToast(`${AppState.darkMode ? 'Dark' : 'Light'} mode enabled`, 'success');
+}
+
+function regenerateBrief() {
+    if (!AppState.currentBrief) {
+        generateBrief();
+        return;
+    }
+    
+    const config = AppState.currentBrief.metadata.config;
+    showLoading();
+    
+    setTimeout(() => {
+        const briefData = window.briefGenerator.generate(config);
+        AppState.currentBrief = briefData;
+        displayBrief(briefData);
+        hideLoading();
+        showToast('Brief regenerated!', 'success');
+    }, 1500);
+}
+
+function togglePreview() {
+    // This could open a full-screen preview modal
+    if (!AppState.currentBrief) {
+        showToast('No brief to preview', 'error');
+        return;
+    }
+    
+    const previewContent = `
+        <div class="max-w-4xl">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-blue-400">Brief Preview</h2>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="bg-white text-gray-900 p-8 rounded-xl max-h-96 overflow-y-auto">
+                ${createHTMLExport(AppState.currentBrief)}
+            </div>
+        </div>
+    `;
+    showModal(previewContent);
+}
+
+function createVariation() {
+    if (!AppState.currentBrief) {
+        showToast('No brief to create variation from', 'error');
+        return;
+    }
+    
+    const config = { ...AppState.currentBrief.metadata.config };
+    
+    // Randomly modify one aspect for variation
+    const variations = ['tone', 'difficulty', 'audience'];
+    const toModify = variations[Math.floor(Math.random() * variations.length)];
+    
+    const options = {
+        tone: Object.keys(TONES),
+        difficulty: ['easy', 'medium', 'hard', 'expert'],
+        audience: ['general', 'millennials', 'genz', 'professionals', 'creatives', 'families', 'seniors', 'students']
+    };
+    
+    const currentValue = config[toModify];
+    const newOptions = options[toModify].filter(opt => opt !== currentValue);
+    config[toModify] = newOptions[Math.floor(Math.random() * newOptions.length)];
+    
+    showLoading();
+    
+    setTimeout(() => {
+        const briefData = window.briefGenerator.generate(config);
+        AppState.currentBrief = briefData;
+        displayBrief(briefData);
+        hideLoading();
+        showToast(`Variation created with ${toModify} change!`, 'success');
+    }, 1500);
+}
+
+// Analytics and tracking
+function trackBriefGeneration(config) {
+    // In a real app, this would send analytics data
+    console.log('Brief generated:', {
+        category: config.category,
+        industry: config.industry,
+        tone: config.tone,
+        timestamp: new Date().toISOString()
+    });
+}
+
+function initializeTooltips() {
+    // Initialize any tooltip functionality
+    // This is a placeholder for future tooltip implementation
+}
+
+function applyUserSettings(settings) {
+    // Apply saved user settings
+    // This is a placeholder for future settings implementation
+}
+
+// Make functions globally available
+window.toggleSubcategories = toggleSubcategories;
+window.toggleAdvancedOptions = toggleAdvancedOptions;
+window.generateBrief = generateBrief;
+window.exportBrief = exportBrief;
+window.copyBrief = copyBrief;
+window.shareBrief = shareBrief;
+window.saveBrief = saveBrief;
+window.randomizeSettings = randomizeSettings;
+window.resetSettings = resetSettings;
+window.saveTemplate = saveTemplate;
+window.scrollToGenerator = scrollToGenerator;
+window.showFeatures = showFeatures;
+window.showHelp = showHelp;
+window.showHistory = showHistory;
+window.toggleDarkMode = toggleDarkMode;
+window.regenerateBrief = regenerateBrief;
+window.togglePreview = togglePreview;
+window.createVariation = createVariation;
+window.loadSavedBrief = loadSavedBrief;
+window.closeModal = closeModal;
