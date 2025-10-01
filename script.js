@@ -10,6 +10,35 @@ const AppState = {
     user: JSON.parse(localStorage.getItem('user') || 'null')
 };
 
+function toggleDarkMode() {
+    AppState.darkMode = !AppState.darkMode;
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', AppState.darkMode);
+    showToast(`Dark mode ${AppState.darkMode ? 'enabled' : 'disabled'}`, 'success');
+}
+window.toggleDarkMode = toggleDarkMode;
+
+function togglePreview() {
+    showToast('Preview is not yet implemented.', 'info');
+}
+window.togglePreview = togglePreview;
+
+function saveModalKeyAndGenerate() {
+    console.log('saveModalKeyAndGenerate called');
+    const key = document.getElementById('modalApiKey').value;
+    if (key) {
+        console.log('Key entered:', key);
+        localStorage.setItem('clientApiKey', key);
+        document.getElementById('clientApiKey').value = key;
+        closeModal();
+        console.log('Calling generateBrief from saveModalKeyAndGenerate');
+        generateBrief();
+    } else {
+        showToast('Please enter an API key.', 'error');
+    }
+}
+window.saveModalKeyAndGenerate = saveModalKeyAndGenerate;
+
 // Default client-side API key (prefilled as requested)
 const DEFAULT_CLIENT_API_KEY = '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';
 
@@ -1438,7 +1467,6 @@ window.scrollToGenerator = scrollToGenerator;
 window.showFeatures = showFeatures;
 window.showHelp = showHelp;
 window.showHistory = showHistory;
-window.toggleDarkMode = toggleDarkMode;
 window.regenerateBrief = async function() {
     if (!AppState.currentBrief) {
         await generateBrief();
@@ -1460,7 +1488,6 @@ window.regenerateBrief = async function() {
         showModal(`<h2 class="text-xl font-bold mb-4 text-red-400">Error Regenerating Brief</h2><pre class="text-sm bg-gray-900 text-red-200 p-4 rounded max-h-64 overflow-auto">${(error && error.stack) ? error.stack : String(error)}</pre><button onclick="closeModal()" class="mt-4 w-full py-2 bg-red-600 rounded-lg">Close</button>`);
     }
 }
-window.togglePreview = togglePreview;
 window.createVariation = async function() {
     if (!AppState.currentBrief) {
         showToast('No brief to create variation from', 'error');
@@ -1508,17 +1535,3 @@ window.loadSavedBrief = async function(index) {
 window.closeModal = closeModal;
 window.saveClientKey = saveClientKey;
 window.clearClientKey = clearClientKey;
-window.saveModalKeyAndGenerate = function() {
-    console.log('saveModalKeyAndGenerate called');
-    const key = document.getElementById('modalApiKey').value;
-    if (key) {
-        console.log('Key entered:', key);
-        localStorage.setItem('clientApiKey', key);
-        document.getElementById('clientApiKey').value = key;
-        closeModal();
-        console.log('Calling generateBrief from saveModalKeyAndGenerate');
-        generateBrief();
-    } else {
-        showToast('Please enter an API key.', 'error');
-    }
-}
