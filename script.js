@@ -10,35 +10,6 @@ const AppState = {
     user: JSON.parse(localStorage.getItem('user') || 'null')
 };
 
-function toggleDarkMode() {
-    AppState.darkMode = !AppState.darkMode;
-    document.body.classList.toggle('dark-mode');
-    localStorage.setItem('darkMode', AppState.darkMode);
-    showToast(`Dark mode ${AppState.darkMode ? 'enabled' : 'disabled'}`, 'success');
-}
-window.toggleDarkMode = toggleDarkMode;
-
-function togglePreview() {
-    showToast('Preview is not yet implemented.', 'info');
-}
-window.togglePreview = togglePreview;
-
-function saveModalKeyAndGenerate() {
-    console.log('saveModalKeyAndGenerate called');
-    const key = document.getElementById('modalApiKey').value;
-    if (key) {
-        console.log('Key entered:', key);
-        localStorage.setItem('clientApiKey', key);
-        document.getElementById('clientApiKey').value = key;
-        closeModal();
-        console.log('Calling generateBrief from saveModalKeyAndGenerate');
-        generateBrief();
-    } else {
-        showToast('Please enter an API key.', 'error');
-    }
-}
-window.saveModalKeyAndGenerate = saveModalKeyAndGenerate;
-
 // Default client-side API key (prefilled as requested)
 const DEFAULT_CLIENT_API_KEY = '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';
 
@@ -752,15 +723,30 @@ function initializeApp() {
 }
 
 function setupEventListeners() {
-    // Category change handler
+    document.getElementById('toggleDarkModeBtn').addEventListener('click', toggleDarkMode);
+    document.getElementById('showHelpBtn').addEventListener('click', showHelp);
+    document.getElementById('showHistoryBtn').addEventListener('click', showHistory);
+    document.getElementById('scrollToGeneratorBtn').addEventListener('click', scrollToGenerator);
+    document.getElementById('showFeaturesBtn').addEventListener('click', showFeatures);
     document.getElementById('category').addEventListener('change', toggleSubcategories);
-    
-    // Advanced options toggle
-    const advancedToggle = document.querySelector('[onclick="toggleAdvancedOptions()"]');
-    if (advancedToggle) {
-        advancedToggle.addEventListener('click', toggleAdvancedOptions);
-    }
-    
+    document.getElementById('toggleAdvancedOptionsBtn').addEventListener('click', toggleAdvancedOptions);
+    document.getElementById('saveClientKeyBtn').addEventListener('click', saveClientKey);
+    document.getElementById('clearClientKeyBtn').addEventListener('click', clearClientKey);
+    document.getElementById('generateBriefBtn').addEventListener('click', generateBrief);
+    document.getElementById('randomizeSettingsBtn').addEventListener('click', randomizeSettings);
+    document.getElementById('resetSettingsBtn').addEventListener('click', resetSettings);
+    document.getElementById('saveTemplateBtn').addEventListener('click', saveTemplate);
+    document.getElementById('regenerateBriefBtn').addEventListener('click', regenerateBrief);
+    document.getElementById('togglePreviewBtn').addEventListener('click', togglePreview);
+    document.getElementById('copyBriefBtn').addEventListener('click', copyBrief);
+    document.getElementById('shareBriefBtn').addEventListener('click', shareBrief);
+    document.getElementById('exportPdfBtn').addEventListener('click', () => exportBrief('pdf'));
+    document.getElementById('exportDocxBtn').addEventListener('click', () => exportBrief('docx'));
+    document.getElementById('exportHtmlBtn').addEventListener('click', () => exportBrief('html'));
+    document.getElementById('exportJsonBtn').addEventListener('click', () => exportBrief('json'));
+    document.getElementById('saveBriefBtn').addEventListener('click', saveBrief);
+    document.getElementById('createVariationBtn').addEventListener('click', createVariation);
+
     // Modal close handlers
     document.addEventListener('click', function(e) {
         if (e.target.id === 'modalOverlay') {
@@ -801,7 +787,7 @@ function toggleSubcategories() {
 function toggleAdvancedOptions() {
     const advancedOptions = document.getElementById('advancedOptions');
     const advancedToggleIcon = document.getElementById('advancedToggleIcon');
-    const button = advancedToggleIcon.parentElement;
+    const button = document.getElementById('toggleAdvancedOptionsBtn');
 
     const isHidden = advancedOptions.classList.toggle('hidden');
     
@@ -816,7 +802,54 @@ function toggleAdvancedOptions() {
     }
 }
 
+async function generateBrief() {
+    console.log('generateBrief called. AI enhancement:', document.getElementById('aiEnhancement').checked, 'API key:', getClientKey());
+    const config = getFormConfig();
 
+    if (config.aiEnhancement && getClientKey() === DEFAULT_CLIENT_API_KEY) {
+        showModal(`
+            <h2 class="text-2xl font-bold mb-4 text-yellow-400">
+                <i class="fas fa-exclamation-triangle mr-2"></i>API Key Required
+            </h2>
+            <p class="text-gray-300 mb-4">
+                To use the AI Enhancement feature, you need to provide your own OpenAI API key. The default key is a placeholder and will not work.
+            </p>
+            <p class="text-gray-400 text-sm mb-4">
+                You can get an API key from the OpenAI website. This key is stored locally in your browser and is not shared.
+            </p>
+            <div class="bg-gray-800 p-4 rounded-lg">
+                <label class="block text-sm font-semibold text-gray-300 mb-2">Enter your OpenAI API Key:</label>
+                <input id="modalApiKey" type="text" placeholder="sk-..." class="w-full p-3 bg-gray-700 border border-gray-600 rounded-xl text-white">
+            </div>
+            <div class="mt-6 flex gap-4">
+                <button id="saveAndGenerateBtn" class="flex-1 py-3 bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors duration-300">
+                    Save and Generate
+                </button>
+                <button id="cancelBtn" class="flex-1 py-3 bg-gray-600 rounded-xl hover:bg-gray-700 transition-colors duration-300">
+                    Cancel
+                </button>
+            </div>
+        `);
+
+        document.getElementById('saveAndGenerateBtn').addEventListener('click', saveModalKeyAndGenerate);
+        document.getElementById('cancelBtn').addEventListener('click', closeModal);
+
+        return;
+    }
+
+    showLoading();
+    try {
+        const briefData = await window.briefGenerator.generate(config);
+        AppState.currentBrief = briefData;
+        displayBrief(briefData);
+        hideLoading();
+        showToast('Brief generated successfully!', 'success');
+    } catch (error) {
+        console.error('Error in generateBrief:', error);
+        hideLoading();
+        showToast('Error generating brief: ' + error.message, 'error');
+    }
+}
 
 function getFormConfig() {
     // Collect form values here
@@ -1161,17 +1194,7 @@ function saveTemplate() {
 
 // Helper Functions for Export
 function createPlainTextBrief(brief) {
-    return `${brief.name}
-
-Project Brief:
-${brief.brief}
-
-Generated: ${new Date(brief.metadata.generatedAt).toLocaleDateString()}
-Configuration: ${brief.metadata.config.category} | ${brief.metadata.config.industry} | ${brief.metadata.config.tone}
-
----
-Created with BriefAI Pro
-`;
+    return `${brief.name}\n\nProject Brief:\n${brief.brief}\n\nGenerated: ${new Date(brief.metadata.generatedAt).toLocaleDateString()}\nConfiguration: ${brief.metadata.config.category} | ${brief.metadata.config.industry} | ${brief.metadata.config.tone}\n\n---\nCreated with BriefAI Pro\n`;
 }
 
 function createWordContent(brief) {
@@ -1374,11 +1397,12 @@ function showHelp() {
                 <li><code class="bg-gray-800 px-2 py-1 rounded">Escape</code> - Close Modal</li>
             </ul>
         </div>
-        <button onclick="closeModal()" class="mt-6 w-full py-3 bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors duration-300">
+        <button id="closeHelpBtn" class="mt-6 w-full py-3 bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors duration-300">
             Got it!
         </button>
     `;
     showModal(helpContent);
+    document.getElementById('closeHelpBtn').addEventListener('click', closeModal);
 }
 
 function showHistory() {
@@ -1395,79 +1419,28 @@ function showHistory() {
                             <h3 class="font-semibold">${brief.name}</h3>
                             <p class="text-sm text-gray-400">${new Date(brief.savedAt).toLocaleDateString()} • ${brief.metadata.config.category}</p>
                         </div>
-                        <button onclick="loadSavedBrief(${AppState.savedBriefs.length - 1 - index})" class="px-4 py-2 bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors duration-300 text-sm">
+                        <button id="loadBriefBtn-${index}" class="px-4 py-2 bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors duration-300 text-sm">
                             Load
                         </button>
                     </div>
                 `).join('')}
             </div>`
         }
-        <button onclick="closeModal()" class="mt-6 w-full py-3 bg-gray-600 rounded-xl hover:bg-gray-700 transition-colors duration-300">
+        <button id="closeHistoryBtn" class="mt-6 w-full py-3 bg-gray-600 rounded-xl hover:bg-gray-700 transition-colors duration-300">
             Close
         </button>
     `;
     showModal(historyContent);
+    document.getElementById('closeHistoryBtn').addEventListener('click', closeModal);
+    AppState.savedBriefs.forEach((brief, index) => {
+        const btn = document.getElementById(`loadBriefBtn-${index}`);
+        if(btn) {
+            btn.addEventListener('click', () => loadSavedBrief(index));
+        }
+    });
 }
 
-// Make functions globally available
-window.toggleSubcategories = toggleSubcategories;
-window.toggleAdvancedOptions = toggleAdvancedOptions;
-window.generateBrief = async function() {
-    console.log('generateBrief called. AI enhancement:', document.getElementById('aiEnhancement').checked, 'API key:', getClientKey());
-    const config = getFormConfig();
-
-    if (config.aiEnhancement && getClientKey() === DEFAULT_CLIENT_API_KEY) {
-        showModal(`
-            <h2 class="text-2xl font-bold mb-4 text-yellow-400">
-                <i class="fas fa-exclamation-triangle mr-2"></i>API Key Required
-            </h2>
-            <p class="text-gray-300 mb-4">
-                To use the AI Enhancement feature, you need to provide your own OpenAI API key. The default key is a placeholder and will not work.
-            </p>
-            <p class="text-gray-400 text-sm mb-4">
-                You can get an API key from the OpenAI website. This key is stored locally in your browser and is not shared.
-            </p>
-            <div class="bg-gray-800 p-4 rounded-lg">
-                <label class="block text-sm font-semibold text-gray-300 mb-2">Enter your OpenAI API Key:</label>
-                <input id="modalApiKey" type="text" placeholder="sk-..." class="w-full p-3 bg-gray-700 border border-gray-600 rounded-xl text-white">
-            </div>
-            <div class="mt-6 flex gap-4">
-                <button onclick="saveModalKeyAndGenerate()" class="flex-1 py-3 bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors duration-300">
-                    Save and Generate
-                </button>
-                <button onclick="closeModal()" class="flex-1 py-3 bg-gray-600 rounded-xl hover:bg-gray-700 transition-colors duration-300">
-                    Cancel
-                </button>
-            </div>
-        `);
-        return;
-    }
-
-    showLoading();
-    try {
-        const briefData = await briefGenerator.generate(config);
-        AppState.currentBrief = briefData;
-        displayBrief(briefData);
-        hideLoading();
-        showToast('Brief generated successfully!', 'success');
-    } catch (error) {
-        console.error('Error in generateBrief:', error);
-        hideLoading();
-        showToast('Error generating brief: ' + error.message, 'error');
-    }
-}
-window.exportBrief = exportBrief;
-window.copyBrief = copyBrief;
-window.shareBrief = shareBrief;
-window.saveBrief = saveBrief;
-window.randomizeSettings = randomizeSettings;
-window.resetSettings = resetSettings;
-window.saveTemplate = saveTemplate;
-window.scrollToGenerator = scrollToGenerator;
-window.showFeatures = showFeatures;
-window.showHelp = showHelp;
-window.showHistory = showHistory;
-window.regenerateBrief = async function() {
+async function regenerateBrief() {
     if (!AppState.currentBrief) {
         await generateBrief();
         return;
@@ -1485,10 +1458,12 @@ window.regenerateBrief = async function() {
         console.error('Error regenerating brief:', error);
         hideLoading();
         showToast(`Error regenerating brief: ${error.message}`, 'error');
-        showModal(`<h2 class="text-xl font-bold mb-4 text-red-400">Error Regenerating Brief</h2><pre class="text-sm bg-gray-900 text-red-200 p-4 rounded max-h-64 overflow-auto">${(error && error.stack) ? error.stack : String(error)}</pre><button onclick="closeModal()" class="mt-4 w-full py-2 bg-red-600 rounded-lg">Close</button>`);
+        showModal(`<h2 class="text-xl font-bold mb-4 text-red-400">Error Regenerating Brief</h2><pre class="text-sm bg-gray-900 text-red-200 p-4 rounded max-h-64 overflow-auto">${(error && error.stack) ? error.stack : String(error)}</pre><button id="closeErrorModalBtn" class="mt-4 w-full py-2 bg-red-600 rounded-lg">Close</button>`);
+        document.getElementById('closeErrorModalBtn').addEventListener('click', closeModal);
     }
 }
-window.createVariation = async function() {
+
+async function createVariation() {
     if (!AppState.currentBrief) {
         showToast('No brief to create variation from', 'error');
         return;
@@ -1523,7 +1498,8 @@ window.createVariation = async function() {
         showToast(`Error creating variation: ${error.message}`, 'error');
     }
 }
-window.loadSavedBrief = async function(index) {
+
+async function loadSavedBrief(index) {
     const brief = AppState.savedBriefs[index];
     if (brief) {
         AppState.currentBrief = brief;
@@ -1532,6 +1508,3 @@ window.loadSavedBrief = async function(index) {
         showToast('Brief loaded successfully!', 'success');
     }
 }
-window.closeModal = closeModal;
-window.saveClientKey = saveClientKey;
-window.clearClientKey = clearClientKey;
