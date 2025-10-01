@@ -82,6 +82,28 @@
             z-index: 50;
             position: relative;
         }
+
+        /* Improve dropdown font visibility and family */
+        select,
+        .select-with-icon select {
+            color: #e5e7eb !important; /* tailwind slate-200 */
+            font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+        }
+
+        /* Try to style options for modern browsers (may vary by platform) */
+        select option {
+            color: #0f172a !important; /* dark text on light option bg for readability when options render with custom backgrounds */
+            background-color: #f8fafc !important; /* light background for options */
+            font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+        }
+
+        /* On dark-themed UIs where option backgrounds are dark, ensure selected text is visible */
+        @media (prefers-color-scheme: dark) {
+            select option {
+                color: #e5e7eb !important;
+                background-color: #0b1220 !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 text-white font-inter min-h-screen">
@@ -440,14 +462,23 @@
                     </div>
                     <p class="text-gray-400 mb-4">Advanced design brief generator with AI-powered insights, premium export options, and collaboration features.</p>
                     <div class="flex space-x-4">
-                        <a href="#" class="text-gray-400 hover:text-blue-400 transition-colors duration-300">
-                            <i class="fab fa-twitter text-xl"></i>
+                        <a href="https://graphicshop786.netlify.app" target="_blank" rel="noopener" class="text-gray-400 hover:text-blue-400 transition-colors duration-300" title="Portfolio Website">
+                            <i class="fas fa-globe text-xl"></i>
                         </a>
-                        <a href="#" class="text-gray-400 hover:text-blue-400 transition-colors duration-300">
-                            <i class="fab fa-linkedin text-xl"></i>
+                        <a href="https://www.behance.net/graphicshop786" target="_blank" rel="noopener" class="text-gray-400 hover:text-blue-400 transition-colors duration-300" title="Behance">
+                            <i class="fab fa-behance text-xl"></i>
                         </a>
-                        <a href="#" class="text-gray-400 hover:text-blue-400 transition-colors duration-300">
+                        <a href="https://github.com/graphicshop786" target="_blank" rel="noopener" class="text-gray-400 hover:text-blue-400 transition-colors duration-300" title="GitHub">
                             <i class="fab fa-github text-xl"></i>
+                        </a>
+                        <a href="https://www.instagram.com/graphicshop786/" target="_blank" rel="noopener" class="text-gray-400 hover:text-blue-400 transition-colors duration-300" title="Instagram">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="https://www.facebook.com/graphicshop786/" target="_blank" rel="noopener" class="text-gray-400 hover:text-blue-400 transition-colors duration-300" title="Facebook">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                        <a href="https://pk.linkedin.com/in/graphicshop786" target="_blank" rel="noopener" class="text-gray-400 hover:text-blue-400 transition-colors duration-300" title="LinkedIn">
+                            <i class="fab fa-linkedin text-xl"></i>
                         </a>
                     </div>
                 </div>
@@ -471,7 +502,8 @@
                 </div>
             </div>
             <div class="border-t border-white/10 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; 2024 BriefAI Pro. Enhanced by <a href="http://www.facebook.com/graphicshop786" target="_blank" class="text-blue-400 hover:text-blue-300 transition-colors duration-300">Bilal Hussain</a></p>
+                <p>&copy; 2024 BriefAI Pro. Enhanced by <a href="https://www.facebook.com/graphicshop786/" target="_blank" rel="noopener" class="text-blue-400 hover:text-blue-300 transition-colors duration-300">Bilal Hussain</a></p>
+                <p class="mt-2 text-sm">Portfolio: <a href="https://graphicshop786.netlify.app" target="_blank" rel="noopener" class="text-blue-400">graphicshop786.netlify.app</a> • Email: <a href="mailto:graphicshop786@gmail.com" class="text-blue-400">graphicshop786@gmail.com</a> • WhatsApp: <a href="https://wa.me/923401617879" target="_blank" rel="noopener" class="text-blue-400">+92 340 1617879</a></p>
             </div>
         </div>
     </footer>
