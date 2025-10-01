@@ -371,3 +371,9 @@ PowerShell quick-start (from repository root):
 4. In your client, send OpenAI requests to `http://localhost:3000/v1/chat/completions` instead of the public OpenAI URL.
 
 Keep your real key out of source control — do not paste it into files tracked by git.
+
+Client-side API Key (Optional)
+
+This project includes an optional client-side API key field in the Advanced Options of the app. The key is stored only in your browser's localStorage and is never sent to any external servers by the app itself. If you prefer not to store the key locally, you can clear it from the UI (Advanced Options → Clear Key) or remove it from your browser's localStorage manually.
+
+Security note: Storing API keys in localStorage has security implications — only use keys you are comfortable keeping in your browser.

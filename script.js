@@ -10,6 +10,39 @@ const AppState = {
     user: JSON.parse(localStorage.getItem('user') || 'null')
 };
 
+// Default client-side API key (prefilled as requested)
+const DEFAULT_CLIENT_API_KEY = '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';
+
+// Helper to get/set client key in localStorage
+function getClientKey() {
+    return localStorage.getItem('clientApiKey') || DEFAULT_CLIENT_API_KEY;
+}
+
+function saveClientKey() {
+    const input = document.getElementById('clientApiKey');
+    if (!input) return;
+    const val = input.value.trim();
+    if (val) {
+        localStorage.setItem('clientApiKey', val);
+        showToast('Client API key saved locally', 'success');
+    } else {
+        showToast('Please enter a key to save', 'error');
+    }
+}
+
+function clearClientKey() {
+    localStorage.removeItem('clientApiKey');
+    const input = document.getElementById('clientApiKey');
+    if (input) input.value = DEFAULT_CLIENT_API_KEY;
+    showToast('Client API key cleared from local storage', 'success');
+}
+
+// Prefill key input on load
+window.addEventListener('DOMContentLoaded', () => {
+    const input = document.getElementById('clientApiKey');
+    if (input) input.value = getClientKey();
+});
+
 // Enhanced data structures for advanced features
 const CATEGORIES = {
     logo: {
@@ -625,6 +658,127 @@ function initializeUI() {
     
     // Initialize tooltips or other UI components
     initializeTooltips();
+    // Decorate selects with icons
+    decorateSelects();
+}
+
+// Map select IDs or types to FontAwesome icons
+const SELECT_ICON_MAP = {
+    category: 'fa-tag',
+    industry: 'fa-industry',
+    tone: 'fa-palette',
+    difficulty: 'fa-level-up-alt',
+    audience: 'fa-users',
+    budget: 'fa-dollar-sign',
+    timeline: 'fa-clock',
+    subcategory: 'fa-tags'
+};
+
+// Per-select value -> icon mappings (fallback to SELECT_ICON_MAP)
+const ICONS_BY_SELECT = {
+    category: {
+        random: 'fa-random',
+        logo: 'fa-paint-brush',
+        brand: 'fa-building',
+        website: 'fa-laptop',
+        app: 'fa-mobile-alt',
+        packaging: 'fa-box',
+        poster: 'fa-image',
+        banner: 'fa-bullseye',
+        illustration: 'fa-feather',
+        marketing: 'fa-bullhorn',
+        billboard: 'fa-landmark'
+    },
+    industry: {
+        random: 'fa-random',
+        technology: 'fa-microchip',
+        healthcare: 'fa-hospital',
+        finance: 'fa-dollar-sign',
+        education: 'fa-graduation-cap',
+        retail: 'fa-shopping-bag',
+        food: 'fa-hamburger',
+        fashion: 'fa-tshirt',
+        travel: 'fa-plane',
+        sports: 'fa-football-ball',
+        entertainment: 'fa-film',
+        nonprofit: 'fa-heart',
+        construction: 'fa-hard-hat',
+        automotive: 'fa-car',
+        'real-estate': 'fa-home',
+        consulting: 'fa-briefcase'
+    },
+    tone: {
+        professional: 'fa-briefcase',
+        playful: 'fa-gamepad',
+        minimalist: 'fa-circle',
+        bold: 'fa-bolt',
+        elegant: 'fa-gem',
+        modern: 'fa-rocket',
+        vintage: 'fa-radio',
+        creative: 'fa-paint-brush'
+    },
+    difficulty: {
+        easy: 'fa-circle',
+        medium: 'fa-adjust',
+        hard: 'fa-exclamation-triangle',
+        expert: 'fa-star'
+    },
+    audience: {
+        general: 'fa-users',
+        millennials: 'fa-user-tie',
+        genz: 'fa-user',
+        professionals: 'fa-user-gear',
+        creatives: 'fa-palette',
+        families: 'fa-home',
+        seniors: 'fa-user-clock',
+        students: 'fa-user-graduate'
+    },
+    budget: {
+        low: 'fa-dollar-sign',
+        medium: 'fa-wallet',
+        high: 'fa-sack-dollar',
+        premium: 'fa-gem'
+    },
+    timeline: {
+        rush: 'fa-bolt',
+        normal: 'fa-calendar',
+        extended: 'fa-calendar-days',
+        flexible: 'fa-arrows-rotate'
+    }
+};
+
+function decorateSelects(root = document) {
+    Object.keys(SELECT_ICON_MAP).forEach(selectId => {
+        const sel = root.querySelector(`#${selectId}`);
+        if (!sel) return;
+
+        // Ensure wrapper exists
+        let wrapper = sel.closest('.select-with-icon');
+        if (!wrapper) {
+            wrapper = document.createElement('div');
+            wrapper.className = 'select-with-icon';
+            sel.parentNode.insertBefore(wrapper, sel);
+            wrapper.appendChild(sel);
+        }
+
+        // Remove existing overlay if present
+        let existing = wrapper.querySelector('.select-icon-overlay');
+        if (existing) existing.remove();
+
+        // Create overlay
+        const span = document.createElement('span');
+        span.className = 'select-icon-overlay';
+        // Choose icon based on current value if available
+        const valueIcon = (ICONS_BY_SELECT[selectId] && ICONS_BY_SELECT[selectId][sel.value]) ? ICONS_BY_SELECT[selectId][sel.value] : SELECT_ICON_MAP[selectId];
+        span.innerHTML = `<i class="fas ${valueIcon}"></i>`;
+        wrapper.appendChild(span);
+
+        // Update overlay when selection changes
+        sel.addEventListener('change', () => {
+            const newIcon = (ICONS_BY_SELECT[selectId] && ICONS_BY_SELECT[selectId][sel.value]) ? ICONS_BY_SELECT[selectId][sel.value] : SELECT_ICON_MAP[selectId];
+            span.innerHTML = `<i class="fas ${newIcon}"></i>`;
+        });
+    });
 }
 
 function loadSavedData() {
@@ -663,6 +817,8 @@ function toggleSubcategories() {
     
     html += '</select>';
     container.innerHTML = html;
+    // Decorate the newly added subcategory select
+    decorateSelects(container);
 }
 
 function toggleAdvancedOptions() {
@@ -719,22 +875,66 @@ function generateBrief() {
         } catch (error) {
             console.error('Error generating brief:', error);
             hideLoading();
-            showToast('Error generating brief. Please try again.', 'error');
+            // Show concise message and provide a debug modal with details
+            showToast(`Error generating brief: ${error.message}`, 'error');
+            const errorContent = `
+                <h2 class="text-xl font-bold mb-4 text-red-400">Error Generating Brief</h2>
+                <pre class="text-sm bg-gray-900 text-red-200 p-4 rounded max-h-64 overflow-auto">${(error && error.stack) ? error.stack : String(error)}</pre>
+                <button onclick="closeModal()" class="mt-4 w-full py-2 bg-red-600 rounded-lg">Close</button>
+            `;
+            showModal(errorContent);
         }
     }, 2000); // Simulate processing time
 }
 
 function getFormConfig() {
+    // Helper to pick a random key from an object
+    function pickRandomKey(obj) {
+        const keys = Object.keys(obj || {});
+        return keys.length ? keys[Math.floor(Math.random() * keys.length)] : null;
+    }
+
+    // Read raw values
+    let category = document.getElementById('category').value;
+    let subcategory = document.getElementById('subcategory')?.value || 'random';
+    let industry = document.getElementById('industry').value;
+    let tone = document.getElementById('tone').value;
+    let difficulty = document.getElementById('difficulty').value;
+    let audience = document.getElementById('audience').value;
+    let budget = document.getElementById('budget')?.value || 'medium';
+    let timeline = document.getElementById('timeline')?.value || 'normal';
+    let aiEnhancement = document.getElementById('aiEnhancement')?.checked || false;
+
+    // Replace 'random' placeholders with real selections
+    if (category === 'random' || !CATEGORIES[category]) {
+        category = pickRandomKey(CATEGORIES) || 'logo';
+    }
+
+    // If subcategory is random, pick from the chosen category's subcategories
+    if (subcategory === 'random' || !CATEGORIES[category].subcategories[subcategory]) {
+        subcategory = pickRandomKey(CATEGORIES[category].subcategories) || 'random';
+    }
+
+    if (industry === 'random' || !INDUSTRIES[industry]) {
+        industry = pickRandomKey(INDUSTRIES) || 'technology';
+    }
+
+    if (!TONES[tone]) {
+        tone = pickRandomKey(TONES) || 'professional';
+    }
+
+    // Return final config
     return {
-        category: document.getElementById('category').value,
-        subcategory: document.getElementById('subcategory')?.value || 'random',
-        industry: document.getElementById('industry').value,
-        tone: document.getElementById('tone').value,
-        difficulty: document.getElementById('difficulty').value,
-        audience: document.getElementById('audience').value,
-        budget: document.getElementById('budget')?.value || 'medium',
-        timeline: document.getElementById('timeline')?.value || 'normal',
-        aiEnhancement: document.getElementById('aiEnhancement')?.checked || false
+        category,
+        subcategory,
+        industry,
+        tone,
+        difficulty,
+        audience,
+        budget,
+        timeline,
+        aiEnhancement,
+        clientApiKey: getClientKey()
     };
 }
 
@@ -1369,14 +1569,26 @@ function regenerateBrief() {
     
     const config = AppState.currentBrief.metadata.config;
     showLoading();
-    
-    setTimeout(() => {
-        const briefData = window.briefGenerator.generate(config);
-        AppState.currentBrief = briefData;
-        displayBrief(briefData);
+    try {
+        setTimeout(() => {
+            try {
+                const briefData = window.briefGenerator.generate(config);
+                AppState.currentBrief = briefData;
+                displayBrief(briefData);
+                hideLoading();
+                showToast('Brief regenerated!', 'success');
+            } catch (error) {
+                console.error('Error regenerating brief:', error);
+                hideLoading();
+                showToast(`Error regenerating brief: ${error.message}`, 'error');
+                showModal(`<h2 class="text-xl font-bold mb-4 text-red-400">Error Regenerating Brief</h2><pre class="text-sm bg-gray-900 text-red-200 p-4 rounded max-h-64 overflow-auto">${(error && error.stack) ? error.stack : String(error)}</pre><button onclick="closeModal()" class="mt-4 w-full py-2 bg-red-600 rounded-lg">Close</button>`);
+            }
+        }, 1500);
+    } catch (err) {
+        console.error('Unexpected error in regenerateBrief:', err);
         hideLoading();
-        showToast('Brief regenerated!', 'success');
-    }, 1500);
+        showToast(`Unexpected error: ${err.message}`, 'error');
+    }
 }
 
 function togglePreview() {
@@ -1477,3 +1689,5 @@ window.togglePreview = togglePreview;
 window.createVariation = createVariation;
 window.loadSavedBrief = loadSavedBrief;
 window.closeModal = closeModal;
+window.saveClientKey = saveClientKey;
+window.clearClientKey = clearClientKey;
