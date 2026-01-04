@@ -985,11 +985,11 @@ function setupEventListeners() {
     .getElementById("toggleAdvancedOptionsBtn")
     .addEventListener("click", toggleAdvancedOptions);
   document
-    .getElementById("saveClientKeyBtn")
-    .addEventListener("click", saveClientKey);
-  document
-    .getElementById("clearClientKeyBtn")
-    .addEventListener("click", clearClientKey);
+  const saveKeyBtn = document.getElementById("saveClientKeyBtn");
+  if (saveKeyBtn) saveKeyBtn.addEventListener("click", saveClientKey);
+  
+  const clearKeyBtn = document.getElementById("clearClientKeyBtn");
+  if (clearKeyBtn) clearKeyBtn.addEventListener("click", clearClientKey);
   document
     .getElementById("generateBriefBtn")
     .addEventListener("click", generateBrief);
@@ -1025,9 +1025,24 @@ function setupEventListeners() {
     .getElementById("exportJsonBtn")
     .addEventListener("click", () => exportBrief("json"));
   document.getElementById("saveBriefBtn").addEventListener("click", saveBrief);
-  document
-    .getElementById("createVariationBtn")
-    .addEventListener("click", createVariation);
+  const togglePreviewBtn = document.getElementById("togglePreviewBtn");
+  if (togglePreviewBtn) togglePreviewBtn.addEventListener("click", togglePreview);
+
+  document.getElementById("copyBriefBtn")?.addEventListener("click", copyBrief);
+  
+  const shareBriefBtn = document.getElementById("shareBriefBtn");
+  if (shareBriefBtn) shareBriefBtn.addEventListener("click", shareBrief);
+  
+  document.getElementById("exportPdfBtn")?.addEventListener("click", () => exportBrief("pdf"));
+  document.getElementById("exportDocxBtn")?.addEventListener("click", () => exportBrief("docx"));
+  document.getElementById("exportHtmlBtn")?.addEventListener("click", () => exportBrief("html"));
+  document.getElementById("exportJsonBtn")?.addEventListener("click", () => exportBrief("json"));
+  
+  const saveBriefBtn = document.getElementById("saveBriefBtn");
+  if (saveBriefBtn) saveBriefBtn.addEventListener("click", saveBrief);
+  
+  const createVariationBtn = document.getElementById("createVariationBtn");
+  if (createVariationBtn) createVariationBtn.addEventListener("click", createVariation);
 
   // Modal close handlers
   document.addEventListener("click", function (e) {
